@@ -6,3 +6,4 @@ download-base-url: https://raw.githubusercontent.com/fifthtry/hostn/main
 -- fpm.dependency: fifthtry.github.io/doc-site as ds
 
 -- fpm.auto-import: ds
+-- fpm.auto-import: fifthtry.github.io/hostn/FPM/config
