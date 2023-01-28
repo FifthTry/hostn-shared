@@ -1,0 +1,54 @@
+-- import: fifthtry.github.io/controller-docs/assets as assets
+
+-- ds.page: Team Settings
+id: team-settings-wireframe
+
+-- ftd.image:
+src: $assets.files.static.team-settings.png
+height: 500
+width: 650
+
+-- ds.h1: API's
+
+/-- ds.h2: Get Team Settings Page (Deprecated)
+
+Will redirect to the team settings page based on the logged in user and current team.
+
+Request Type: `POST`
+
+Url: `/api/redirect-team-settings/`
+
+Body: `current-user`, `current-team` (Personal by default)
+
+Response-data: `None`
+
+End-Action: `Redirect to /team-settings/?current-user&current-team=Personal`
+
+-- ds.h2: Rename current team name
+
+Will update the current team name with the given new name.
+
+Request Type: `POST`
+
+Url: `/api/update-team-name/`
+
+Body: `new-team-name`
+
+Response-data: `None`
+
+End-Action: `Reload the current page with updated information`
+
+-- ds.h2: Delete Team
+
+Will delete the current team under the given user.
+
+Request Type: `POST`
+
+Url: `/api/delete-team/`
+
+Body: `current-user`, `current-team`
+
+Response-data: `None`
+
+End-Action: `Redirect to user dashboard`
+

@@ -1,0 +1,22 @@
+-- import: fifthtry.github.io/controller-docs/assets as assets
+
+-- ds.page: Queries
+
+-- ds.h0: How are we taking payment from the user ?
+
+Is the payment for any purchased plan going to be pre-paid or post-paid ?
+The user will be asked to pay for the machines on monthly basis based
+on the plan selected by him/her or are we taking payment in advance from the user
+based on the duration he/she must have selected when choosing plan ?
+
+`Latest update` - This will be recurring based where the charges will be collected from the
+user in monthly basis which will not be constant charges and will gradually change
+after each successive months. (**WIP**)
+
+-- ds.h0: Team Member and Member-type
+
+This will not be taken as input from the user, for this we are supposed to let the user
+make an account and based on its type and details of it, we can collect these information.
+Proper login system is required beforehand.
+
+`Latest update` - Login system not yet functional to be used.

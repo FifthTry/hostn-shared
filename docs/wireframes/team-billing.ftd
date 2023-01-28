@@ -1,0 +1,62 @@
+-- import: fifthtry.github.io/controller-docs/assets as assets
+
+-- ds.page: Team billing
+id: team-billing-wireframe
+
+-- ftd.image:
+src: $assets.files.static.team-billing.png
+height: 500
+width: 650
+
+-- ds.h1: API's
+
+-- ds.h2: Get Team Billing page contents
+
+Will fetch all the related contents to be shown in this page.
+
+Request Type: `GET`
+
+Url: `/api/team-billing/`
+
+Query Parameters: `current-user`, `current-team` (Personal by default)
+
+Response-data: `list of card information` which are saved,
+`list of invoice details` (invoice-id, created-on, price, status)
+
+/-- ds.h2: Get Team Billing Page (Deprecated)
+
+Will redirect to the team billing page based on the logged in user and current team.
+
+Request Type: `POST`
+
+Url: `/redirect-team-billing/`
+
+Body: `current-user`, `current-team` (Personal by default)
+
+Response-data: `None`
+
+End-Action: `Redirect to /team-billing/?current-user&current-team=Personal`
+
+/-- ds.h2: Get Billing Details (Deprecated)
+
+Fetch the saved card details which are to be shown in the page.
+
+Request Type: `GET`
+
+Url: `/get-team-billing-details/?current-user&current-team=Personal`
+
+Body: `current-user`, `current-team` (Personal by default)
+
+Response-data: list of card information which are saved.
+
+/-- ds.h2: Get list of invoices (Deprecated)
+
+Fetch the invoices made under the current team and user.
+
+Request Type: `GET`
+
+Url: `/get-team-billing-invoices/?current-user&current-team=Personal`
+
+Body: `current-user`, `current-team` (Personal by default)
+
+Response-data: list of invoices (invoice-id, created-on, price, status).

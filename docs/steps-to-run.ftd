@@ -1,0 +1,56 @@
+-- ds.page: Steps on how to use controller-service with controller-ui
+id: steps-to-run
+
+-- ds.h1: Clone both controller repositories
+
+Git clone both `controller-ui` and `controller-service` repo's from github.
+Run the following commands in the terminal. After that switch to the `remote/origin/test`
+branch in both repo's, since the latest changes are not yet merged in the main branch.
+
+-- ds.code: Cloning both controller repositories
+lang: bash
+
+git clone https://github.com/FifthTry/controller-service.git
+git clone https://github.com/FifthTry/controller-ui.git
+
+-- container: steps-to-run
+
+-- ds.h1: Create a local-settings.py module
+
+-- ds.markdown:
+
+Using `settings.json` is deprecated and now we are using
+[local_settings.py](id: local-settings-file) module to include all necessary parameters.
+Include this module in your `settings.py` file before using this service.
+
+-- ds.h1: Create a local proxy to access fly Machines API
+
+To do this, first you need to login using a fly.io account (if you haven't).
+To login run `flyctl auth login` in your terminal, this will redirect you to the fly
+login page in your browser. For more information, refer fly documentation on [how to
+signup and login into your fly account](https://fly.io/docs/getting-started/log-in-to-fly/)
+
+After that enable flyctl proxy into one of your local ports
+by running `flyctl machines api-proxy` in your terminal and keep it running till you
+are using this controller-service. By default, it will use `4280` port and you can access
+the fly Machines API at `127.0.0.1:4280`, if in case you are using any other endpoint other than
+the default then adjust the `FLY_MACHINE_API_LOCAL_ENDPOINT` in settings.json above.
+To refer actual fly.io documentation see [flyctl proxy](https://fly.io/docs/reference/machines/#connecting-via-flyctl-proxy)
+
+-- ds.h1: Start controller-service
+
+Start the django `controller-service` at port `8001`.
+Run the following command from inside `controller-service/dj` directory
+where `manage.py` is located.
+
+-- ds.code:
+lang: bash
+
+python manage.py runserver 8001
+
+-- container: steps-to-run
+
+-- ds.h1: Serve controller-ui
+
+Serve the `controller-ui` at port `8000` by executing `fpm serve` in the terminal.
+

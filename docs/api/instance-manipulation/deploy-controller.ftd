@@ -1,0 +1,18 @@
+;; deploy-controller-api
+;; <service-endpoint>/api/deploy-controller/
+
+-- ds.page: deploy-controller
+id: deploy-controller-api
+
+-- ds.markdown:
+
+This API deploys the controller-service as a fly app through the same procedure
+mentioned in [create-instance](id: create-instance-api).
+
+It uses the `CONTROLLER_DOCKER` docker image mentioned inside your
+[local_settings.py](id: local-settings-file)
+file to deploy this service as a global controller service at fly.io
+
+URL: `<service-endpoint>/api/deploy-controller/`
+
+Request Type: `POST`

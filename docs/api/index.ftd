@@ -1,0 +1,40 @@
+-- ds.page: Controller-service API's
+
+This service offers certain API's which users can use which are as follows:
+
+-- ds.markdown:
+
+Instance Manipulation API's:
+
+- [create-instance](id: create-instance-api)
+
+- [delete-instance](id: delete-instance-api)
+
+- [deploy-controller](id: deploy-controller-api)
+
+Note: Before using these API's, make sure that you
+have a `local proxy-tunnelled endpoint` active from where you can access the `Fly Machines API`.
+
+Payment related API's:
+
+- [redirect-to-plans](id: redirect-to-plans-api)
+
+- [get-plan-names](id: get-plan-names-api)
+
+- [get-plans](id: get-plans-api)
+
+- [add-plan](id: add-plan-api)
+
+- [payment-success](id: payment-success-api)
+
+- [payment-failure](id: payment-failure-api)
+
+- [make-payment](id: make-payment-api)
+
+Misc API's:
+
+- [list-packages](id: list-packages-api)
+
+-- ds.markdown:
+
+`Recommended`: Do checkout the [prerequisites] before using any of these API's

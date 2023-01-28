@@ -1,0 +1,51 @@
+-- import: fifthtry.github.io/controller-docs/assets as assets
+
+-- ds.page: Team Access
+id: team-access-wireframe
+
+-- ftd.image:
+src: $assets.files.static.team-access.png
+height: 500
+width: 650
+
+-- ds.h1: API's
+
+-- ds.h2: Get Team Access page contents
+
+Will fetch all the related contents to be shown in this page.
+
+Request Type: `GET`
+
+Url: `/api/team-access/`
+
+Query Parameters: `current-user`, `current-team` (Personal by default)
+
+Response-data: `list of team members with access information`
+(member-name, booleans for various access privileges)
+
+/-- ds.h2: Get Team Access Page (Deprecated)
+
+Will redirect to the team access page based on the logged in user and current team.
+
+Request Type: `POST`
+
+Url: `/api/redirect-team-access/`
+
+Body: `current-user`, `current-team` (Personal by default)
+
+Response-data: `None`
+
+End-Action: `Redirect to /team-access/?current-user&current-team=Personal`
+
+/-- ds.h2: Get Team Access Member details (Deprecated)
+
+Will fetch all the team members with their access information
+
+Request Type: `GET`
+
+Url: `/api/get-team-access-details/?current-user&current-team`
+
+Query Parameters: `current-user`, `current-team`
+
+Response-data: `list of team members with access information`
+(member-name, booleans for various access privileges)

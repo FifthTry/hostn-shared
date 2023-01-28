@@ -1,0 +1,13 @@
+;; payment-failure-api
+;; <service-endpoint>/api/payment-failure/
+
+-- ds.page: payment-failure
+id: payment-failure-api
+
+-- ds.markdown:
+
+This API redirects the user to the payment failure page
+
+URL: `<service-endpoint>/api/payment-failure/`
+
+Request Type: `GET`

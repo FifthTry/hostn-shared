@@ -1,0 +1,20 @@
+-- import: fpm
+
+-- ds.page: Controller UI wireframes
+
+All the necessary information regarding the page wireframes will be mentioned
+in this section of the documentation.
+
+-- ds.markdown:
+
+UI pages are listed below:
+
+- [Dashboard](id: dashboard-wireframe)
+- [Team-Access page](id: team-access-wireframe)
+- [Team-Billing page](id: team-billing-wireframe)
+- [Team-Settings page](id: team-settings-wireframe)
+- [Site-Info page](id: site-info-wireframe)
+- [Site-Activity-SiteUpdates page](id: site-activity-site-updates-wireframe)
+- [Site-Activity-Logs page](id: site-activity-logs-wireframe)
+- [Site-Activity-Analytics page](id: site-activity-analytics-wireframe)
+

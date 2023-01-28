@@ -1,0 +1,62 @@
+-- import: fifthtry.github.io/controller-docs/assets as assets
+
+-- ds.page: Site Info
+id: site-info-wireframe
+
+-- ftd.image:
+src: $assets.files.static.site-info.png
+height: 500
+width: 650
+
+-- ds.h1: API's
+
+-- ds.h2: Get Site Information contents
+
+Will fetch all the related contents to be shown in this page.
+
+Request Type: `GET`
+
+Url: `/api/site-info/`
+
+Body: `current-user`, `current-team`, `current-site-id`
+
+Response-data: `list of site names` under the given current team and user,
+Also the `site info of the selected site` based on the current-site-id.
+
+/-- ds.h2: Get Site Information page (Deprecated)
+
+Will redirect to the Site Info page under `Sites -> Info`.
+
+Request Type: `POST`
+
+Url: `/api/redirect-site-info/`
+
+Body: `current-user`, `current-team`, `current-site-id`
+
+Response-data: `None`
+
+End-Action: `Redirect to /site-info/?current-user&current-team&current-site-id`
+
+/-- ds.h2: Get all sites names (Deprecated)
+
+Will fetch all the site names under the given current team and user.
+
+Request Type: `GET`
+
+Url: `/api/get-site-names/?current-user&current-team`
+
+Query Parameters: `current-user`, `current-team`
+
+Response-data: `list of site names`
+
+/-- ds.h2: Get current site information (Deprecated)
+
+Will fetch the site info based on the current-site-id.
+
+Request Type: `GET`
+
+Url: `/api/get-site-info/?current-site-id`
+
+Query Parameters: `current-site-id`
+
+Response-data: `requested site information (site-name, hosted-url/ public IP, status, updated-on, ..)`

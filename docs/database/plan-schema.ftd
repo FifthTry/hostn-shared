@@ -1,0 +1,24 @@
+-- ds.page: Plan model (schema)
+id: plan-schema
+
+This model keeps all the list of available subscription plans available to the user
+offered by Fifthtry.
+
+List of parameters stored under this model are listed below:
+
+- name: This is the plan name (eg. Basic, Standard, etc)
+- description: This is the plan description
+- charge_per_min: This is the amount in cents which will be charged
+per minute from the user under this plan
+- instance_type: InstanceType record which is used under this plan for deployment.
+This is a foreign_key([InstanceType](id: instance-type-schema)) and includes
+all the required information about the instance machine specifications.
+
+-- ds.code: Detailed Plan model
+lang: rust
+
+class Plan(models.Model):
+    name = models.CharField(max_length=150)
+    description = models.CharField(max_length=500)
+    charge_per_min = models.IntegerField()
+    instance_type = models.ForeignKey(InstanceType, on_delete=models.CASCADE)

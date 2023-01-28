@@ -1,0 +1,21 @@
+;; payment-success-api
+;; <service-endpoint>/api/payment-success/
+
+-- ds.page: payment-success
+id: payment-success-api
+
+-- ds.markdown:
+
+This API will deploy the user package at fly.io
+(through [create-instance](id: create-instance-api) procedure) and
+then it will redirect to the payment success page.
+
+It requires certain parameters listed below.
+
+- plan
+- package-name
+- base-url
+
+URL: `<service-endpoint>/api/payment-success/`
+
+Request Type: `GET`

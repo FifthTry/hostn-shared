@@ -1,0 +1,20 @@
+-- ds.page: local-settings.py
+id: local-settings-file
+
+The `controller-service` demands certain parameters by default so the user has
+to include a `local_settings.py` file inside `settings.py` to ensure all the
+necessary parameters are available prior to its functioning. All the necessary
+parameters are listed below.
+
+-- ds.code: local-settings.py example
+lang: py
+
+# You can modify the default parameters to your needs if required
+VARS = {
+    "FLY_MACHINE_API_LOCAL_ENDPOINT": "127.0.0.1:4280",
+    "FLY_AUTH_TOKEN": "<your-fly-auth-token>",
+    "APP_DOCKER": "heulitig/controller",
+    "CONTROLLER_DOCKER": "heulitig/gunicorn-controller",
+    "STRIPE_PUB_KEY": "<your-stripe-public-key>",
+    "STRIPE_SECRET_KEY": "<your-stripe-private-key>",
+}

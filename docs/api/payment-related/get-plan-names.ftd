@@ -1,0 +1,14 @@
+;; get-plan-names-api
+;; <service-endpoint>/api/get-plan-names/
+
+-- ds.page: get-plan-names
+id: get-plan-names-api
+
+-- ds.markdown:
+
+This API is quite similar to [get-plans](id: get-plans-api) API
+except it fetches only the plan names listed under Plan model.
+
+URL: `<service-endpoint>/api/get-plan-names/`
+
+Request Type: `GET`

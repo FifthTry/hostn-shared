@@ -1,0 +1,32 @@
+;; delete-instance-api
+;; <service-endpoint>/api/delete-instance/
+
+-- ds.page: delete-instance
+id: delete-instance-api
+
+This API deletes the deployed app instance from fly.io
+by making a `DELETE request` and
+also marks the `instance_status = "TERMINATED"`
+in the UserPackages table.
+
+URL: `<service-endpoint>/api/delete-instance/`
+
+Request Type: `POST`
+
+Refer fly docs for more information -
+[how to delete fly app](https://fly.io/docs/reference/machines/#delete-a-fly-application)
+
+-- ds.h1: DELETE request
+
+`FLY_MACHINE_API_LOCAL_ENDPOINT`: local endpoint at which we can access fly machine API
+
+`FLY_APP_NAME`: the name of the app to be deleted
+
+`FLY_AUTH_TOKEN`: authorization token issued from fly.io
+
+-- ds.code: DELETE request for deleting the fly app instance
+lang: bash
+
+curl -i -X DELETE \
+-H "Authorization: Bearer <FLY_API_TOKEN>" -H "Content-Type: application/json" \
+"http://<FLY_MACHINE_API_LOCAL_ENDPOINT>/v1/apps/<FLY_APP_NAME>"

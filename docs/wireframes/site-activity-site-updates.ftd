@@ -1,0 +1,65 @@
+-- import: fifthtry.github.io/controller-docs/assets as assets
+
+-- ds.page: Site Activity Site Updates
+id: site-activity-site-updates-wireframe
+
+-- ftd.image:
+src: $assets.files.static.site-activity-site-update.png
+height: 500
+width: 650
+
+-- ds.h1: API's
+
+-- ds.h2: Get Site Updates page contents
+
+Will fetch all the related contents to be shown in this page.
+
+Request Type: `GET`
+
+Url: `/api/site-updates/?current-user&current-team&current-site-id`
+
+Query Parameters: `current-user`, `current-team`, `current-site-id`
+
+Response-data: list of all site names under the current team,
+list of site updates for the selected site based on the current-site-id
+
+/-- ds.h2: Get Site Updates page (Deprecated)
+
+Will redirect to the Site updates page under `Sites -> Activity -> Site Updates`.
+
+Request Type: `POST`
+
+Url: `/api/redirect-site-updates/`
+
+Body: `current-user`, `current-team`, `current-site-id`
+
+Response-data: `None`
+
+End-Action: `Redirect to /site-updates/?current-user&current-team&current-site-id`
+
+/-- ds.h2: Get all sites names (Deprecated)
+
+Will fetch all the site names under the given current team and user.
+
+Request Type: `GET`
+
+Url: `/api/get-site-names/?current-user&current-team`
+
+Query Parameters: `current-user`, `current-team`
+
+Response-data: `list of site names`
+
+/-- ds.h2: Get Site Updates list (Deprecated)
+
+Will fetch all the site updates for the selected deployed site.
+
+Request Type: `GET`
+
+Url: `/api/get-site-updates/?current-user&current-team&current-site-id`
+
+Body: `current-user`, `current-team`, `current-site-id`
+
+Response-data: `list of site updates info (member-name, files updated, updated on)`
+
+For now I will return dummy data with the above mentioned details as response data.
+

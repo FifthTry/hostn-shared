@@ -1,0 +1,23 @@
+;; get-plans-api
+;; <service-endpoint>/api/get-plans/
+
+-- ds.page: get-plans
+id: get-plans-api
+
+-- ds.markdown:
+
+This API fetches the following information
+for every plan under Plan model
+
+- plan
+- charges-per-min
+- charges-per-day
+- description
+- machine-type
+- machine-vcpus
+- machine-ram
+
+
+URL: `<service-endpoint>/api/get-plans/`
+
+Request Type: `GET`
