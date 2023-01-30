@@ -1,6 +1,6 @@
 -- import: fpm
 
--- fpm.package: fifthtry.github.io/controller-docs
+-- fpm.package: fifthtry.github.io/hostn-docs
 download-base-url: https://raw.githubusercontent.com/fifthtry/controller-docs/main
 
 -- fpm.dependency: fifthtry.github.io/doc-site as ds
