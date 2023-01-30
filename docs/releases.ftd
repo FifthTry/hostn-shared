@@ -2,12 +2,12 @@
 
 -- ds.page: Hostn Release
 
-
 -- ds.h1: Release 1 Only Static Page
 
 - create an static page with login button(login with github)
   - Hosting Service for Fastn Packages (Coming Soon...)
 - Deploy it on Heroku with `hostn.io`, hostn-service and hostn(with hostn-app)
+- main thing is to make it live with this static page, which is powered by heroku
 
 -- ftd.image:
 src: $assets.files.static.r1-index.png
