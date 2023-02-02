@@ -1,0 +1,22 @@
+-- import: fastn
+
+-- fastn.package: fifthtry.github.io/hostn
+download-base-url: https://raw.githubusercontent.com/fifthtry/hostn/main
+
+-- fastn.dependency: fifthtry.github.io/doc-site as ds
+
+-- fastn.dependency: fifthtry.github.io/fpm-controller-ui as hostn-app
+
+-- fastn.auto-import: ds
+-- fastn.auto-import: fifthtry.github.io/hostn/FASTN/config
+
+-- fastn.app:
+name: Hostn-App
+package: fifthtry.github.io/fpm-controller-ui
+mount-point: /
+
+
+/-- fastn.sitemap:
+
+# Section: /
+document: /-/fifthtry.github.io/fpm-controller-ui/index.ftd
