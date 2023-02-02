@@ -1,7 +1,0 @@
--- ds.page: Django controller-service documentation
-
-This repo will contain all the necessary documentation
-regarding the FPM controller
-
-Refer [Github Discussion](https://github.com/FifthTry/fpm-controller/discussions/15)
-for more information.
