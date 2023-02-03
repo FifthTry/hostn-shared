@@ -1,0 +1,10 @@
+-- ds.page:
+
+- landing page
+- authentication
+
+-- ds.h1: Landing Page
+
+We have a page that introduces people about our existence.
+
+Currently it is a very bared boned page, which links to login.

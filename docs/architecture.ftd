@@ -7,10 +7,11 @@ We have three repos.
 This is the main repo. This is a `fastn` package.
 
 All discussions related to hostn project, all issue tracking
-etc should be done against this repo.
+etc should be done against this repo. All documentation of all
+three repos will be stored in this folder.
 
 This fastn package uses `hostn-app` for main feature. It uses
-the mount point as `/` for now.
+the mount point as `/app/`.
 
 Non app features like landing page, documentation, pricing page
 terms of use, blog etc are on stored in `hostn` repo.
