@@ -62,39 +62,39 @@ setup() {
         echo "Downloading the latest production ready binaries"
     fi
 
-    DESTINATION_PATH="/usr/local/bin"
+#    DESTINATION_PATH="/usr/local/bin"
 
-    if [ -d "$DESTINATION_PATH" ]; then
-        DESTINATION_PATH=$DESTINATION_PATH
-    else
-        DESTINATION_PATH="${HOME}/.fastn/bin"
-        mkdir -p $DESTINATION_PATH
-    fi
+#    if [ -d "$DESTINATION_PATH" ]; then
+#        DESTINATION_PATH=$DESTINATION_PATH
+#    else
+#        DESTINATION_PATH="${HOME}/.fastn/bin"
+#        mkdir -p $DESTINATION_PATH
+#    fi
 
-    if [[ $CONTROLLER ]]; then 
+    if [[ $CONTROLLER ]]; then
         curl -s $URL | grep ".*\/releases\/download\/.*\/fastn_controller_linux.*" | head -2 | cut -d : -f 2,3 | tee /dev/tty | xargs -I % curl -O -J -L %
-        mv fastn_controller_linux_musl_x86_64 "${DESTINATION_PATH}/fastn"
-        mv fastn_controller_linux_musl_x86_64.d "${DESTINATION_PATH}/fastn.d"
+#        mv fastn_controller_linux_musl_x86_64 "${DESTINATION_PATH}/fastn"
+#        mv fastn_controller_linux_musl_x86_64.d "${DESTINATION_PATH}/fastn.d"
     elif [[ "$OSTYPE" == "darwin"* ]]; then
         curl -s $URL | grep ".*\/releases\/download\/.*\/fastn_macos.*" | head -1 | cut -d : -f 2,3 | tee /dev/tty | xargs -I % curl -O -J -L %
-        mv fastn_macos_x86_64 "${DESTINATION_PATH}/fastn"
+#        mv fastn_macos_x86_64 "${DESTINATION_PATH}/fastn"
     else
         curl -s $URL | grep ".*\/releases\/download\/.*\/fastn_linux.*" | head -2 | cut -d : -f 2,3 | tee /dev/tty | xargs -I % curl -O -J -L %
-        mv fastn_linux_musl_x86_64 "${DESTINATION_PATH}/fastn"
-        mv fastn_linux_musl_x86_64.d "${DESTINATION_PATH}/fastn.d"
+#        mv fastn_linux_musl_x86_64 "${DESTINATION_PATH}/fastn"
+#        mv fastn_linux_musl_x86_64.d "${DESTINATION_PATH}/fastn.d"
     fi
-    chmod +x "${DESTINATION_PATH}/fastn"*
+    chmod +x fastn_linux_musl_x86_64
     
 
-    if ! [[ $DESTINATION_PATH == "/usr/local/bin" ]]; then 
-        cat <<EOF
-Unable to create a binary link for your system. Please add the following to your .bashrc/.zshrc file
-
-${FMT_GREEN}PATH="\$PATH:${DESTINATION_PATH}"${FMT_RESET}
-
-and reload the configuration/restart the terminal session
-EOF
-    fi
+#    if ! [[ $DESTINATION_PATH == "/usr/local/bin" ]]; then
+#        cat <<EOF
+#Unable to create a binary link for your system. Please add the following to your .bashrc/.zshrc file
+#
+#${FMT_GREEN}PATH="\$PATH:${DESTINATION_PATH}"${FMT_RESET}
+#
+#and reload the configuration/restart the terminal session
+#EOF
+#    fi
 }
 
 main() {
