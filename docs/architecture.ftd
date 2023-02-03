@@ -1,0 +1,25 @@
+-- ds.page: HostN Architecture
+
+We have three repos.
+
+-- ds.h1: hostn
+
+This is the main repo. This is a `fastn` package.
+
+All discussions related to hostn project, all issue tracking
+etc should be done against this repo.
+
+This fastn package uses `hostn-app` for main feature. It uses
+the mount point as `/` for now.
+
+Non app features like landing page, documentation, pricing page
+terms of use, blog etc are on stored in `hostn` repo.
+
+-- ds.h1: hostn-service
+
+This is the django code behind hostn.
+
+-- ds.h1: hostn-app
+
+This is the fastn re-usable app implementing the main features
+of hostn service.
