@@ -1,0 +1,90 @@
+-- ds.page: HostN Static Architecture
+
+-- ds.h1: HostN Static S3 Interface: HSSI
+
+We have reader and writers, and they communicate with each other via HSSI.
+
+$BUCKET/<package-name>/LIST.JSON
+$BUCKET/<package-name>/FILES.TEJAR
+
+Eg: $BUCKET/amitu.com/LIST.json or $BUCKET/window-button.fastn-apps.com/LIST.json.
+
+-- ds.h2: Domain Only Packages
+
+This service does not support package-names that are not domain names: eg foo.com is 
+supported but foo.com/bar is not supported.
+
+-- ds.h2: Case Insensitive Domains
+
+Package-name would be case insensitive, and names would be lowercased before 
+storage/matching. This is the expected behaviour for dealing with domain names as they
+domains supposed to be case insensitive.
+
+
+
+-- ds.h1: HostN Static Reader: HSR
+
+This is a HTTP service deployed on Heroku (for now). All read requests land to this service.
+
+-- ds.h2: Only GET and HEAD methods
+
+HSR only supports these two methods. All other methods give <DISALLOED METHODS ERROR>.
+
+-- ds.h2: Package Name Is Domain
+
+
+-- ds.h2: Read Operation
+
+HSR service reads the domain name by reading the HOST header. Domain name is the package name.
+
+HSR then reads the `$BUCKET/<package-name>/LIST.json`. 
+
+If LIST.json is missing it returns 404 (with reason: no such package). Reason will be embedded
+in the HTML response.
+
+Path to file mapping: Then HSR finds the document corresponding to the request path. Eg if 
+path is `/` it looks for index.html, `/foo/`: `foo/index.html` and for `anything/with.extension` 
+it looks for `anything/with.extension`.
+
+HSR then checks if the file is present in LIST.json, if not it returns 404 with reason: no 
+such file.
+
+HSR then finds the start and length from LIST.json for the `file`. And makes a read request to
+`$BUCKET/<package-name>/FILES.tejar` with start and lenth, and serves the file.
+
+Mime Type Handling: LIST.json also contains extensions.
+
+-- ds.h1: HostN Static Writer: HSW
+
+Writer endpoint: api.hostn-apps.com.
+
+-- ds.h2: /create/ API
+
+/create/?package=<package-name>&list-size=<size-of-list-file-in-bytes>
+Body: <content of LIST.json file>+<content of files.tejar file>
+
+Returns:
+
+```json
+{
+    "success": true,
+    "key": "<secret-key>"
+}
+```
+
+-- ds.h2: /update/ API
+
+/udpate/?package=<package-name>&list-size=<size-of-list-file-in-bytes>&key=<key>
+Body: <content of LIST.json file>+<content of files.tejar file>
+
+Returns:
+
+```json
+{
+    "success": true
+}
+```
+
+
+-- ds.h1: Tejar
+
