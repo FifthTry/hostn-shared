@@ -26,6 +26,8 @@ domains supposed to be case insensitive.
 
 This is a HTTP service deployed on Heroku (for now). All read requests land to this service.
 
+Source code of HSR is in FifthTry/hsr repo.
+
 -- ds.h2: Only GET and HEAD methods
 
 HSR only supports these two methods. All other methods give <DISALLOED METHODS ERROR>.
@@ -57,6 +59,8 @@ Mime Type Handling: LIST.json also contains extensions.
 -- ds.h1: HostN Static Writer: HSW
 
 Writer endpoint: api.hostn-apps.com.
+
+Source code of HSW is in FifthTry/hsw repo.
 
 -- ds.h2: /create/ API
 
