@@ -97,8 +97,48 @@ key matches the old key, if not returns "key mis-match" error.
 
 -- ds.h1: Tejar
 
+Crate name: tejar, Source: FifthTry/hsr/tejar. 
+
+-- ds.code: to create the files
+lang: rs
+
+tejar::create(root: std::path::Path, files: Vec<(String /* mime */, std::path::Path)>) 
+    -> Result<tejar::Tejar, tejar::CreateError>
+
+struct Tejar {
+    list: Vec<TejarRecord>, 
+    files: Vec<u8>
+}
+
+struct TejarRecord {
+    file: String,
+    size: u32,
+    content_type: String,
+}
+
+-- ds.code: Read
+lang: rs
+
+tejas::read(list_json_content) -> Result<tejar::Reader, tejar::ReadError>
+
+struct Reader {
+    // opaque
+}
+
+impl Reader {
+    fn get_file(file_path: String) -> Result<tejar::FileInfo, tejar::InfoError>
+}
+
+struct FileInfo {
+    content_type: String,
+    offset: u32,
+    size: u32,
+}
+
 -- ds.h1: Debug vs Production
 
 For local testing, `--debug` argument can be passed to both HSR and HSW services. In the
 debug mode `HOSTN_STATIC_STORE=/tmp/hostn-static` environment variable will be used. 
 `HOSTN_STATIC_STORE` folder will be created it if does not exist.
+
+
