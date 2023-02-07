@@ -93,3 +93,8 @@ key matches the old key, if not returns "key mis-match" error.
 
 -- ds.h1: Tejar
 
+-- ds.h1: Debug vs Production
+
+For local testing, `--debug` argument can be passed to both HSR and HSW services. In the
+debug mode `HOSTN_STATIC_STORE=/tmp/hostn-static` environment variable will be used. 
+`HOSTN_STATIC_STORE` folder will be created it if does not exist.
