@@ -72,9 +72,12 @@ Returns:
 }
 ```
 
+KEY is part of LIST.json, but create API ignores the key from LIST.json and generates a 
+new key and stores it as part of LIST.json.
+
 -- ds.h2: /update/ API
 
-/udpate/?package=<package-name>&list-size=<size-of-list-file-in-bytes>&key=<key>
+/udpate/?package=<package-name>&list-size=<size-of-list-file-in-bytes>
 Body: <content of LIST.json file>+<content of files.tejar file>
 
 Returns:
@@ -85,6 +88,8 @@ Returns:
 }
 ```
 
+Key is part of LIST.json, so before overwriting the content HSW verifies that
+key matches the old key, if not returns "key mis-match" error.
 
 -- ds.h1: Tejar
 
