@@ -85,7 +85,8 @@ We will call this function if file size is less than or equal to `hsr::CACHE_TRE
 -- ds.code:
 lang: ftd
 
-async fn streaming_read(files_tejar: String, start: u32, size: u32) -> tokio_stream::Stream<Vec<u8>>
+async fn streaming_read(files_tejar: String, start: u32, size: u32) -> 
+  impl Stream<Item=Vec<u8>>
 
 
 -- ds.markdown:
@@ -95,7 +96,17 @@ async fn streaming_read(files_tejar: String, start: u32, size: u32) -> tokio_str
 This function reads content from S3 in a streaming way. This will be called if file size
 is bigger than `hsr::CACHE_TRESHOLD`, and will be sent to browser in a streaming way.
 
-https://docs.rs/stream-body/latest/stream_body/#examples is a good example.
+Preferred: 
+
+https://stackoverflow.com/questions/56435409/
+
+This gives us a stream: https://docs.rs/reqwest/latest/reqwest/struct.Response.html#method.bytes_stream
+
+This takes the stream returns to browser: https://docs.rs/hyper/latest/hyper/body/struct.Body.html#method.wrap_stream
+
+Fallback: 
+
+https://docs.rs/stream-body/latest/stream_body/#examples
 
 -- ds.h1: HostN Static Writer: HSW
 
