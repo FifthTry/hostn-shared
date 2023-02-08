@@ -56,6 +56,47 @@ HSR then finds the start and length from LIST.json for the `file`. And makes a r
 
 Mime Type Handling: LIST.json also contains extensions.
 
+-- ds.h2: read_list()
+
+-- ds.code:
+lang: rs
+
+async fn read_list(package_name: String) -> std::io::Result<String>
+
+-- ds.markdown:
+
+The string returned by `hsr::read_list()` is passed to `tajar::read()`.
+
+-- ds.h2: read_in_memory()
+
+-- ds.code:
+lang: rs
+
+async fn read_in_memory(files_tejar: String, start: u32, size: u32) -> tokio::io::Result<Vec<u8>>
+
+-- ds.markdown:
+
+`file` would be something like `$BUCKET/<package-name>/FILES.tejar`.
+
+We will call this function if file size is less than or equal to `hsr::CACHE_TRESHOLD`.
+
+-- ds.h2: streaming_read()
+
+-- ds.code:
+lang: ftd
+
+async fn streaming_read(files_tejar: String, start: u32, size: u32) -> tokio_stream::Stream<Vec<u8>>
+
+
+-- ds.markdown:
+
+`file` would be something like `$BUCKET/<package-name>/FILES.tejar`.
+
+This function reads content from S3 in a streaming way. This will be called if file size
+is bigger than `hsr::CACHE_TRESHOLD`, and will be sent to browser in a streaming way.
+
+https://docs.rs/stream-body/latest/stream_body/#examples is a good example.
+
 -- ds.h1: HostN Static Writer: HSW
 
 Writer endpoint: api.hostn-apps.com.
@@ -119,7 +160,7 @@ struct TejarRecord {
 -- ds.code: Read
 lang: rs
 
-tejas::read(list_json_content) -> Result<tejar::Reader, tejar::ReadError>
+tejar::read(list_json_content: String) -> Result<tejar::Reader, tejar::ReadError>
 
 struct Reader {
     // opaque
