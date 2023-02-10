@@ -98,7 +98,7 @@ pub struct TejarRecord {
 }
 
 pub struct Reader {
-    content_file: String
+    content_file_name: String,
     list: Vec<TejarRecord>,
 }
 
@@ -192,6 +192,7 @@ tejar::create(root: std::path::Path, files: Vec<(String /* mime */, std::path::P
     -> Result<tejar::Tejar, tejar::CreateError>
 
 struct Tejar {
+    content_file_name: String,
     list: Vec<TejarRecord>, 
     files: Vec<u8>
 }
@@ -209,6 +210,7 @@ lang: rs
 tejar::read(list_content: String) -> Result<tejar::Reader, tejar::ReadError>
 
 pub struct Reader {
+    content_file_name: String,
     list: Vec<TejarRecord>,
 }
 
