@@ -222,6 +222,7 @@ struct FileInfo {
     content_type: String,
     offset: u32,
     size: u32,
+    checksum: Vec<u8>,
 }
 
 -- ds.h1: Debug vs Production
