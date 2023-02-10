@@ -4,10 +4,10 @@
 
 We have reader and writers, and they communicate with each other via HSSI.
 
-$BUCKET/<package-name>/LIST.JSON
-$BUCKET/<package-name>/FILES.TEJAR
+$BUCKET/<package-name>/LIST.tejar-list
+$BUCKET/<package-name>/FILES.tejar-data
 
-Eg: $BUCKET/amitu.com/LIST.json or $BUCKET/window-button.fastn-apps.com/LIST.json.
+Eg: $BUCKET/amitu.com/LIST.tejar-list or $BUCKET/window-button.fastn-apps.com/LIST.tejar-list.
 
 -- ds.h2: Domain Only Packages
 
@@ -39,7 +39,7 @@ HSR only supports these two methods. All other methods give <DISALLOED METHODS E
 
 HSR service reads the domain name by reading the HOST header. Domain name is the package name.
 
-HSR then reads the `$BUCKET/<package-name>/LIST.json`. 
+HSR then reads the `$BUCKET/<package-name>/LIST.tejar-list`. 
 
 If LIST.json is missing it returns 404 (with reason: no such package). Reason will be embedded
 in the HTML response.
@@ -48,11 +48,11 @@ Path to file mapping: Then HSR finds the document corresponding to the request p
 path is `/` it looks for index.html, `/foo/`: `foo/index.html` and for `anything/with.extension` 
 it looks for `anything/with.extension`.
 
-HSR then checks if the file is present in LIST.json, if not it returns 404 with reason: no 
+HSR then checks if the file is present in LIST.tejar-list, if not it returns 404 with reason: no 
 such file.
 
-HSR then finds the start and length from LIST.json for the `file`. And makes a read request to
-`$BUCKET/<package-name>/FILES.tejar` with start and lenth, and serves the file.
+HSR then finds the start and length from LIST.tejar-list for the `file`. And makes a read request to
+`$BUCKET/<package-name>/FILES.tejar-data` with start and lenth, and serves the file.
 
 Mime Type Handling: LIST.json also contains extensions.
 
@@ -76,9 +76,43 @@ async fn read_in_memory(files_tejar: String, start: u32, size: u32) -> tokio::io
 
 -- ds.markdown:
 
-`file` would be something like `$BUCKET/<package-name>/FILES.tejar`.
+`file` would be something like `$BUCKET/<package-name>/FILES.tejar-data`.
 
 We will call this function if file size is less than or equal to `hsr::CACHE_TRESHOLD`.
+
+
+-- ds.h2: HSR Cache
+
+In the updated design of `tejar`, `tejar::TejarRecord` will also contain the checksum of the file.
+and `LIST.tejar-list` will also conatin the latest `<some-unique-number>-FILES.tejar-data` name of the data file.
+
+-- ds.code:
+lang: rs
+
+pub struct TejarRecord {
+    file_name: String,
+    offset: u32,
+    file_size: u32,
+    content_type: String,
+    checksum: Vec<u8>
+}
+
+pub struct Reader {
+    content_file: String
+    list: Vec<TejarRecord>,
+}
+
+-- ds.markdown:
+
+In `hsr` we cache `PACKAGE_LIST_CACHE` which is of type `lru::LruCache<String, tejar::Reader>>` and it will also
+store the timestamp when it is last cached. In background `hrs` service will keep updating `PACKAGE_LIST_CACHE` 
+as per `CACHE_EXPIRY` unit(minute or so).
+
+Another cache that we maintain in `hsr` is `FILES_CACHE`, which is of type `lru::LruCache<Vec<u8>, Vec<u8>>`, which maps
+`checksum` to `file content`.
+
+With this approach, we will get the updated content after, if `CACHE_EXPIRY` becomes lesser than since `PACKAGE_LIST_CACHE` 
+last updated time.
 
 -- ds.h2: streaming_read()
 
@@ -91,7 +125,7 @@ async fn streaming_read(files_tejar: String, start: u32, size: u32) ->
 
 -- ds.markdown:
 
-`file` would be something like `$BUCKET/<package-name>/FILES.tejar`.
+`file` would be something like `$BUCKET/<package-name>/FILES.tejar-data`.
 
 This function reads content from S3 in a streaming way. This will be called if file size
 is bigger than `hsr::CACHE_TRESHOLD`, and will be sent to browser in a streaming way.
@@ -117,7 +151,7 @@ Source code of HSW is in FifthTry/hsw repo.
 -- ds.h2: /create/ API
 
 /create/?package=<package-name>&list-size=<size-of-list-file-in-bytes>
-Body: <content of LIST.json file>+<content of files.tejar file>
+Body: <content of LIST.tejar-list file>+<content of files.tejar file>
 
 Returns:
 
@@ -128,8 +162,8 @@ Returns:
 }
 ```
 
-KEY is part of LIST.json, but create API ignores the key from LIST.json and generates a 
-new key and stores it as part of LIST.json.
+KEY is part of LIST.tejar-list, but create API ignores the key from LIST.tejar-list and generates a 
+new key and stores it as part of LIST.tejar-list.
 
 -- ds.h2: /update/ API
 
@@ -144,7 +178,7 @@ Returns:
 }
 ```
 
-Key is part of LIST.json, so before overwriting the content HSW verifies that
+Key is part of LIST.tejar-list, so before overwriting the content HSW verifies that
 key matches the old key, if not returns "key mis-match" error.
 
 -- ds.h1: Tejar
@@ -163,18 +197,19 @@ struct Tejar {
 }
 
 struct TejarRecord {
-    file: String,
-    size: u32,
+    file_name: String,
+    offset: u32,
+    file_size: u32,
     content_type: String,
 }
 
 -- ds.code: Read
 lang: rs
 
-tejar::read(list_json_content: String) -> Result<tejar::Reader, tejar::ReadError>
+tejar::read(list_content: String) -> Result<tejar::Reader, tejar::ReadError>
 
-struct Reader {
-    // opaque
+pub struct Reader {
+    list: Vec<TejarRecord>,
 }
 
 impl Reader {
