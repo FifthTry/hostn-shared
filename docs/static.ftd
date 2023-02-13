@@ -181,6 +181,17 @@ Returns:
 Key is part of LIST.tejar-list, so before overwriting the content HSW verifies that
 key matches the old key, if not returns "key mis-match" error.
 
+-- ds.h2: Differential Upload
+
+The /update/ api uploads the full data file, even when most of the files may not have changed.
+
+To only upload what has changed we first download the current `tejar list` file, and compare
+the local `tejar data` file, and only upload what has changed. 
+
+The hsw gets the last data file, and applies the newly uploaded "diff". Latest list will contain
+the information about all the files. Latest data only contains files that are changed. From the
+previous data file the unchanged files can be extracted and a new full data file can be created.
+
 -- ds.h1: Tejar
 
 Crate name: tejar, Source: FifthTry/hsr/tejar. 
