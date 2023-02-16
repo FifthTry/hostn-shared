@@ -130,7 +130,7 @@ async fn streaming_read(files_tejar: String, start: u32, size: u32) ->
 
 -- ds.markdown:
 
-`file` would be something like `$BUCKET/<package-name>/FILES.tejar-data`.
+`file` would be something like `$BUCKET/<package-name>/DATA-<ts>.tejar-data`.
 
 This function reads content from S3 in a streaming way. This will be called if file size
 is bigger than `hsr::CACHE_TRESHOLD`, and will be sent to browser in a streaming way.
@@ -147,59 +147,121 @@ Fallback:
 
 https://docs.rs/stream-body/latest/stream_body/#examples
 
--- ds.h1: HostN Static Writer: HSW
+-- ds.h1: `fastn-cw`
 
 Writer endpoint: api.hostn-apps.com.
 
-Source code of HSW is in FifthTry/hsw repo.
+Source code of `fastn-cw` is in [FifthTry/fastn-cw](https://github.com/FifthTry/fastn-cw) repo.
 
 -- ds.h2: /create/ API
 
-/create/?package=<package-name>&list-size=<size-of-list-file-in-bytes>
-Body: <content of LIST.tejar-list file>+<content of files.tejar file>
+/create/?package=<package-name>
+Body: <content of LIST.tejar-list file>
+
+Returns:
+
+-- ds.code:
+lang: json
+
+{
+    "success": true,
+    "key": "<secret-key>",
+    "missing_hashes": [<each-hash>, <that-we>, <do-not>, <already-have>]
+}
+
+-- ds.code: TempList Table
+lang: py
+
+class PartialList(models.Model):
+    package_name = models.TextField(max_length=2000, index=True)
+    key = models.TextField()
+    list_content = models.TextField()
+    # created_at # will never be updated, will get deleted on successful update
+
+-- ds.markdown: 
+
+`fastn-cw` generates a new key and stores it in the `PartialList` table.
+
+-- ds.code: ContentHash table
+lang: py
+
+class Checksum(models.Model):
+    hash = models.TextField(max_length=40, index=True) # sha256
+    data = models.TextField(max_length=2000)
+    start = models.IntegerField()
+    size = models.IntegerField()
+
+-- ds.markdown: 
+
+/create/ API then looks at each checksum in the Checksum table, and finds the checksum in the list
+file that is not present in the Checksum table, and returns this list to the `fastn` cli.
+
+Fastn-cli then makes another HTTP request to `upload-new-package` api and sends the 
+
+-- ds.h2: /upload-new-package/ API
+
+/upload-new-package/?package=<package-name>&key=<key>
+Body: <content of missing hashes DATA.tejar-data file>
+
+This API is called after /create/ api returns successfully. 
+
+`fastn-cw` checks if the package and key matches in the `PartialList` table. If so it takes the
+`current time stamp` and creates two files: `<bucket><package-name>/LIST.tejar-list` and 
+`<bucket><package-name>/DATA-<current time stamp>.tejar-data` files. It also deletes the entry from
+`PartialList` table and inserts it into Package table.
+
+-- ds.code: Package Table
+lang: py
+
+class Package(models.Model):
+    name = models.TextField(max_length=2000, index=True)
+    key = models.TextField()
+    # created_at, updated_at
+
+-- ds.markdown:
+
+And finally it adds one entry for each file in missing-hashes in the `Checksum` table.
+
+
+-- ds.h2: /update/ API
+
+/udpate/?package=<package-name>&key=<key>
+Body: <content of LIST.json file>
 
 Returns:
 
 ```json
 {
     "success": true,
-    "key": "<secret-key>"
+    "missing_hashes": [<each-hash>, <that-we>, <do-not>, <already-have>]
 }
 ```
 
-KEY is part of LIST.tejar-list, but create API ignores the key from LIST.tejar-list and generates a 
-new key and stores it as part of LIST.tejar-list.
+`update` api verifies the key matches with one stored in Package table. `update` api then stores
+the data in `PartialList` table.
 
--- ds.h2: /update/ API
+`fastn cli` then has to make a request to `upload-updated-package` api.
 
-/udpate/?package=<package-name>&list-size=<size-of-list-file-in-bytes>
-Body: <content of LIST.json file>+<content of files.tejar file>
 
-Returns:
+-- ds.h2: `upload-updated-package` api
 
-```json
-{
-    "success": true
-}
-```
+/upload-updated-package/?package=<package-name>&key=<key>
+Body: <content of missing hashes DATA.tejar-data file>
 
-Key is part of LIST.tejar-list, so before overwriting the content HSW verifies that
-key matches the old key, if not returns "key mis-match" error.
+This API is called after /udpate/ api returns successfully. 
 
--- ds.h2: Differential Upload
+`fastn-cw` checks if the package and key matches in the `PartialList` table. If so it takes the
+`current time stamp` and creates `<bucket><package-name>/DATA-<current time stamp>.tejar-data` file. 
+It then takes the list_content from `PartialList` table and appends to 
+`<bucket><package-name>/LIST.tejar-list` file.
 
-The /update/ api uploads the full data file, even when most of the files may not have changed.
+It also deletes the entry from `PartialList` table and and updates Package table (updated_on column).
+And finally it adds one entry for each file in missing-hashes in the `Checksum` table.
 
-To only upload what has changed we first download the current `tejar list` file, and compare
-the local `tejar data` file, and only upload what has changed. 
-
-The hsw gets the last data file, and applies the newly uploaded "diff". Latest list will contain
-the information about all the files. Latest data only contains files that are changed. From the
-previous data file the unchanged files can be extracted and a new full data file can be created.
 
 -- ds.h1: Tejar
 
-Crate name: tejar, Source: FifthTry/hsr/tejar. 
+Crate name: tejar, Source: FifthTry/hsr/tejar.
 
 -- ds.code: to create the files
 lang: rs
