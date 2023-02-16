@@ -91,7 +91,7 @@ We will call this function if file size is less than or equal to `hsr::CACHE_TRE
 
 -- ds.h2: Historical Read Operation
 
-If ?ts=<timestamp> is passed as query paramter during any read, the requirement:
+If `<timestamp>.package-name` is accessed, the requirement:
 
 > HSR then finds the `data-file`, `start` and `length` from LIST.tejar-list for the latest entry for 
 > `file`. And makes a read request to `data-file` with `start` and `lenth`, and serves the file.
@@ -102,7 +102,7 @@ Instead becomes:
 > timestamp <= <timestamp in query parameter>** for the `file`. And makes a read request to `data-file` with 
 > `start` and `lenth`, and serves the file.
 
-In no ts is passed, if we use <current-time> as default value, we only have to implement one logic.
+In no ts is present as subdomain, if we use <current-time> as default value, we only have to implement one logic.
 
 Note: In future META file will decide if historical reads are allowed or not. For now it is always allowed.
 
