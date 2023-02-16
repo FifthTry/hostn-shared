@@ -89,6 +89,11 @@ HSR service reads the domain name by reading the HOST header. `domain_name_is_pa
 
 package-name = request.HEADER["HOST"]; <domain>#domain_name_is_package_name
 
+The domain may contain special prefixes, `ts-<integer>` or `cr-<integer>`, if either is
+present, then they should be removed when caluclating package name. Eg if `ts-123123.amitu.com`
+is domain, then package name is `amitu.com`. Similarly `cr-23.amitu.com` is still `amitu.com`.
+Also `ts-123123.amitu.fastn-site.com` and `cr-23.amitu.fastn-site.com` are both `amitu.fastn-site.com`.
+
 HSR then reads the `$BUCKET/<package-name>/LIST.tejar-list`. 
 
 If LIST.json is missing it returns 404 (with reason: no such package). Reason will be embedded
