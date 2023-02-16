@@ -60,8 +60,8 @@ it looks for `anything/with.extension`.
 HSR then checks if the file is present in `LIST.tejar-list`, if not it returns 404 with reason: no 
 such file.
 
-HSR then finds the `data-file`, `start` and `length` from LIST.tejar-list for the `file`. And makes 
-a read request to `data-file` with `start` and `lenth`, and serves the file.
+HSR then finds the `data-file`, `start` and `length` from LIST.tejar-list for the latest entry for `file`. And 
+makes a read request to `data-file` with `start` and `lenth`, and serves the file.
 
 Mime Type Handling: `LIST.tejar-list` also contains extensions.
 
@@ -89,6 +89,22 @@ async fn read_in_memory(files_tejar: String, start: u32, size: u32) -> tokio::io
 
 We will call this function if file size is less than or equal to `hsr::CACHE_TRESHOLD`.
 
+-- ds.h2: Historical Read Operation
+
+If ?ts=<timestamp> is passed as query paramter during any read, the requirement:
+
+> HSR then finds the `data-file`, `start` and `length` from LIST.tejar-list for the latest entry for 
+> `file`. And makes a read request to `data-file` with `start` and `lenth`, and serves the file.
+
+Instead becomes:
+
+> HSR then finds the `data-file`, `start` and `length` from LIST.tejar-list for the latest entry, **with 
+> timestamp <= <timestamp in query parameter>** for the `file`. And makes a read request to `data-file` with 
+> `start` and `lenth`, and serves the file.
+
+In no ts is passed, if we use <current-time> as default value, we only have to implement one logic.
+
+Note: In future META file will decide if historical reads are allowed or not. For now it is always allowed.
 
 -- ds.h2: HSR Cache
 
