@@ -286,6 +286,7 @@ lang: py
 
 class Checksum(models.Model):
     hash = models.TextField(max_length=40, index=True) # sha256
+    data_file_path = models.CharField(max_length=256) # It will be global
     data = models.TextField(max_length=2000)
     start = models.IntegerField()
     size = models.IntegerField()
