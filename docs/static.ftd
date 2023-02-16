@@ -47,7 +47,7 @@ lang: json
 
 {
     "history-is-public": true,
-    "static-package": true,
+    "proxy": "<proxy-url>",
     "grouped": {
         "<group-name>": {
             "files": ["list of", "paths in that", "group],
@@ -63,8 +63,10 @@ lang: json
 
 -- ds.markdown:
 
-If `static-package` is not true, `hsr` will do a proxy pass to `d3 service`. `d3 service`'s URL would be available
-as environment variable. We have this logic so people get common instructions for setting their DNS settings. 
+If `proxy` key is present, HSR will do a proxy pass to the URL mentioned there. We have this logic so people get 
+common instructions for setting their DNS settings. The URL would be either to d3 service (for handling dynamic
+ftd files on our shared infrastructure), or to dedicated machine for this package if user is using dedicated
+hosting option.
 
 Either `grouped` or `sitemap` key would be present.
 
