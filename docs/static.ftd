@@ -5,14 +5,18 @@
 We have reader and writers, and they communicate with each other via HSSI.
 
 $BUCKET/<package-name>/LIST.tejar-list
-$BUCKET/<package-name>/FILES.tejar-data
+$BUCKET/<package-name>/DATA-<ts>.tejar-data
 
 Eg: $BUCKET/amitu.com/LIST.tejar-list or $BUCKET/window-button.fastn-apps.com/LIST.tejar-list.
+
+Note: `LIST.tajar-list` is append only files. `DATA.tejar-<ts>.data` file is immutable file.
 
 -- ds.h2: Domain Only Packages
 
 This service does not support package-names that are not domain names: eg foo.com is 
 supported but foo.com/bar is not supported.
+
+
 
 -- ds.h2: Case Insensitive Domains
 
@@ -24,20 +28,18 @@ domains supposed to be case insensitive.
 
 -- ds.h1: HostN Static Reader: HSR
 
-This is a HTTP service deployed on Heroku (for now). All read requests land to this service.
+This is a HTTP service deployed on Fly as a [FLy App](https://fly.io/docs/hands-on/launch-app/). All read 
+requests land to this service.
 
-Source code of HSR is in FifthTry/hsr repo.
+Source code of HSR is in [FifthTry/hsr](https://github.com/FifthTry/hsr).
 
 -- ds.h2: Only GET and HEAD methods
 
 HSR only supports these two methods. All other methods give <DISALLOED METHODS ERROR>.
 
--- ds.h2: Package Name Is Domain
-
-
 -- ds.h2: Read Operation
 
-HSR service reads the domain name by reading the HOST header. Domain name is the package name.
+HSR service reads the domain name by reading the HOST header. **Domain name is the package name**.
 
 HSR then reads the `$BUCKET/<package-name>/LIST.tejar-list`. 
 
@@ -48,13 +50,13 @@ Path to file mapping: Then HSR finds the document corresponding to the request p
 path is `/` it looks for index.html, `/foo/`: `foo/index.html` and for `anything/with.extension` 
 it looks for `anything/with.extension`.
 
-HSR then checks if the file is present in LIST.tejar-list, if not it returns 404 with reason: no 
+HSR then checks if the file is present in `LIST.tejar-list`, if not it returns 404 with reason: no 
 such file.
 
-HSR then finds the start and length from LIST.tejar-list for the `file`. And makes a read request to
-`$BUCKET/<package-name>/FILES.tejar-data` with start and lenth, and serves the file.
+HSR then finds the `data-file`, `start` and `length` from LIST.tejar-list for the `file`. And makes 
+a read request to `data-file` with `start` and `lenth`, and serves the file.
 
-Mime Type Handling: LIST.json also contains extensions.
+Mime Type Handling: `LIST.tejar-list` also contains extensions.
 
 -- ds.h2: read_list()
 
@@ -83,36 +85,39 @@ We will call this function if file size is less than or equal to `hsr::CACHE_TRE
 
 -- ds.h2: HSR Cache
 
-In the updated design of `tejar`, `tejar::TejarRecord` will also contain the checksum of the file.
-and `LIST.tejar-list` will also conatin the latest `<some-unique-number>-FILES.tejar-data` name of the data file.
+In the updated design of `tejar`, `tejar::TejarRecord` contains the following:
 
 -- ds.code:
 lang: rs
 
 pub struct TejarRecord {
-    file_name: String,
+    file_name: String, // index.html
     offset: u32,
+    data_file: String, // <some-package>/DATA-<ts>.tejar-data: some package could be any package
     file_size: u32,
     content_type: String,
-    checksum: Vec<u8>
+    checksum: String
 }
 
 pub struct Reader {
-    content_file_name: String,
     list: Vec<TejarRecord>,
 }
 
+pub struct TimeStampedReader {
+    timestamp: SystemTime,
+    reader: tejar::Reader,
+}
+
+type Checksum = String;
+
 -- ds.markdown:
 
-In `hsr` we cache `PACKAGE_LIST_CACHE` which is of type `lru::LruCache<String, tejar::Reader>>` and it will also
-store the timestamp when it is last cached. In background `hrs` service will keep updating `PACKAGE_LIST_CACHE` 
-as per `CACHE_EXPIRY` unit(minute or so).
+In `hsr` we cache `PACKAGE_LIST_CACHE` which is of type `lru::LruCache<String, TimeStampedReader>`. In background 
+`hsr` service will keep updating `PACKAGE_LIST_CACHE` as per `CACHE_EXPIRY` unit (minute or so).
 
-Another cache that we maintain in `hsr` is `FILES_CACHE`, which is of type `lru::LruCache<Vec<u8>, Vec<u8>>`, which maps
+Another cache that we maintain in `hsr` is `FILES_CACHE`, which is of type `lru::LruCache<Checksum, Vec<u8>>`, which maps
 `checksum` to `file content`.
 
-With this approach, we will get the updated content after, if `CACHE_EXPIRY` becomes lesser than since `PACKAGE_LIST_CACHE` 
-last updated time.
 
 -- ds.h2: streaming_read()
 
@@ -231,6 +236,7 @@ impl Reader {
 
 struct FileInfo {
     content_type: String,
+    data_file: String, // <some-package>/DATA-<ts>.tejar-data: some package could be any package
     offset: u32,
     size: u32,
     checksum: Vec<u8>,
