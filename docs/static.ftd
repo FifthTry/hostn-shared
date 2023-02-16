@@ -91,7 +91,10 @@ We will call this function if file size is less than or equal to `hsr::CACHE_TRE
 
 -- ds.h2: Historical Read Operation
 
-If `<timestamp>.package-name` is accessed, the requirement:
+Historical read is on a subdomain for any package, eg `ts-123123123.amitu.com` or `ts-123123123.amitu.fastn-site.com`
+is supported.
+
+If `ts-<timestamp>.<package-name>` is accessed, the requirement:
 
 > HSR then finds the `data-file`, `start` and `length` from LIST.tejar-list for the latest entry for 
 > `file`. And makes a read request to `data-file` with `start` and `lenth`, and serves the file.
