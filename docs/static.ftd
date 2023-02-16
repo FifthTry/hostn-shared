@@ -11,6 +11,13 @@ Eg: $BUCKET/amitu.com/LIST.tejar-list or $BUCKET/window-button.fastn-apps.com/LI
 
 Note: `LIST.tajar-list` is append only files. `DATA.tejar-<ts>.data` file is immutable file.
 
+We also have a `$BUCKET/updated-packages.txt` file, which contains an entry for every time any package is updated:
+
+<timestamp>: <package-name>
+
+This will be used to invalidate caches.
+
+
 -- ds.h2: Domain Only Packages
 
 This service does not support package-names that are not domain names: eg foo.com is 
@@ -103,8 +110,7 @@ pub struct Reader {
     list: Vec<TejarRecord>,
 }
 
-pub struct TimeStampedReader {
-    timestamp: SystemTime,
+pub struct CachedReader {
     reader: tejar::Reader,
     current_length: usize, // size of tejar file so far, on every update this length may go up
 }
@@ -113,13 +119,19 @@ type Checksum = String;
 
 -- ds.markdown:
 
-In `hsr` we cache `PACKAGE_LIST_CACHE` which is of type `lru::LruCache<String, TimeStampedReader>`. In background 
-`hsr` service will keep updating `PACKAGE_LIST_CACHE` as per `CACHE_EXPIRY` unit (minute or so). When doing
-background update, we know that PACKAGE_LIST file is append only file, so we will send a range request and try
-to fetch the content after whatever we have in memory.
+In `hsr` we cache `PACKAGE_LIST_CACHE` which is of type `lru::LruCache<String, CachedReader>`. 
 
 Another cache that we maintain in `hsr` is `FILES_CACHE`, which is of type `lru::LruCache<Checksum, Vec<u8>>`, which maps
 `checksum` to `file content`.
+
+-- ds.h3: Cache Purge
+
+Every minute `hsr` downloads `$BUCKET/updated-packages.txt`. The content of this file is also stored globally.
+
+When redownloading the file, we will use the range query, to only download the changes written in the `updated-package.txt`
+file instead of re-downloading the whole file.
+
+Any package that updated since last access, and is accessed next, we will download the appended portion in LIST file.
 
 
 -- ds.h2: streaming_read()
@@ -210,8 +222,11 @@ This API is called after /create/ api returns successfully.
 
 `fastn-cw` checks if the package and key matches in the `PartialList` table. If so it takes the
 `current time stamp` and creates two files: `<bucket><package-name>/LIST.tejar-list` and 
-`<bucket><package-name>/DATA-<current time stamp>.tejar-data` files. It also deletes the entry from
-`PartialList` table and inserts it into Package table.
+`<bucket><package-name>/DATA-<current time stamp>.tejar-data` files. When uploading LIST file, 
+the current system time will be used in each `FileInfo` record, we will ignore the timestamp 
+sent by client as it may be wrong.
+
+It also deletes the entry from `PartialList` table and inserts it into Package table.
 
 -- ds.code: Package Table
 lang: py
@@ -256,7 +271,8 @@ This API is called after /udpate/ api returns successfully.
 `fastn-cw` checks if the package and key matches in the `PartialList` table. If so it takes the
 `current time stamp` and creates `<bucket><package-name>/DATA-<current time stamp>.tejar-data` file. 
 It then takes the list_content from `PartialList` table and appends to 
-`<bucket><package-name>/LIST.tejar-list` file.
+`<bucket><package-name>/LIST.tejar-list` file.  When appending, the current system time will be used
+in each `FileInfo` record, we will ignore the timestamp sent by client as it may be wrong.
 
 It also deletes the entry from `PartialList` table and and updates Package table (updated_on column).
 And finally it adds one entry for each file in missing-hashes in the `Checksum` table.
@@ -283,6 +299,7 @@ struct TejarRecord {
     offset: u32,
     file_size: u32,
     content_type: String,
+    timestamp: u64, // we will ignore the timestamp of client and re-calculate timestamp on server
 }
 
 -- ds.code: Read
@@ -305,6 +322,7 @@ struct FileInfo {
     offset: u32,
     size: u32,
     checksum: Vec<u8>,
+    timestamp: u64, // we will ignore the timestamp of client and re-calculate timestamp on server
 }
 
 -- ds.h1: Debug vs Production
