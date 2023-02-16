@@ -106,6 +106,7 @@ pub struct Reader {
 pub struct TimeStampedReader {
     timestamp: SystemTime,
     reader: tejar::Reader,
+    current_length: usize, // size of tejar file so far, on every update this length may go up
 }
 
 type Checksum = String;
@@ -113,7 +114,9 @@ type Checksum = String;
 -- ds.markdown:
 
 In `hsr` we cache `PACKAGE_LIST_CACHE` which is of type `lru::LruCache<String, TimeStampedReader>`. In background 
-`hsr` service will keep updating `PACKAGE_LIST_CACHE` as per `CACHE_EXPIRY` unit (minute or so).
+`hsr` service will keep updating `PACKAGE_LIST_CACHE` as per `CACHE_EXPIRY` unit (minute or so). When doing
+background update, we know that PACKAGE_LIST file is append only file, so we will send a range request and try
+to fetch the content after whatever we have in memory.
 
 Another cache that we maintain in `hsr` is `FILES_CACHE`, which is of type `lru::LruCache<Checksum, Vec<u8>>`, which maps
 `checksum` to `file content`.
