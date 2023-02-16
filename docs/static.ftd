@@ -35,18 +35,21 @@ domains supposed to be case insensitive.
 
 -- ds.h1: HostN Static Reader: HSR
 
-This is a HTTP service deployed on Fly as a [FLy App](https://fly.io/docs/hands-on/launch-app/). All read 
-requests land to this service.
+This is a HTTP service deployed on Fly as a [FLy App](https://fly.io/docs/hands-on/launch-app/). 
+`hsr-handles-all-reads`: All read requests land to this service.
 
 Source code of HSR is in [FifthTry/hsr](https://github.com/FifthTry/hsr).
 
--- ds.h2: Only GET and HEAD methods
+-- ds.h2: `only-get-and-head-allowed`
 
 HSR only supports these two methods. All other methods give <DISALLOED METHODS ERROR>.
 
 -- ds.h2: Read Operation
 
-HSR service reads the domain name by reading the HOST header. **Domain name is the package name**.
+HSR service reads the domain name by reading the HOST header. `domain_name_is_package_name`: 
+**Domain name is the package name**.
+
+package-name = request.HEADER["HOST"]; <domain>#domain_name_is_package_name
 
 HSR then reads the `$BUCKET/<package-name>/LIST.tejar-list`. 
 
