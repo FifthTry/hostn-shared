@@ -5,11 +5,12 @@
 We have reader and writers, and they communicate with each other via HSSI.
 
 $BUCKET/<package-name>/LIST.tejar-list
+$BUCKET/<package-name>/META.json
 $BUCKET/<package-name>/DATA-<ts>.tejar-data
 
 Eg: $BUCKET/amitu.com/LIST.tejar-list or $BUCKET/window-button.fastn-apps.com/LIST.tejar-list.
 
-Note: `LIST.tajar-list` is append only files. `DATA.tejar-<ts>.data` file is immutable file.
+Note: `LIST.tajar-list` is append only files. `DATA-<ts>.tejar-data` file is immutable file.
 
 We also have a `$BUCKET/updated-packages.txt` file, which contains an entry for every time any package is updated:
 
@@ -31,6 +32,37 @@ Package-name would be case insensitive, and names would be lowercased before
 storage/matching. This is the expected behaviour for dealing with domain names as they
 domains supposed to be case insensitive.
 
+-- ds.h1: `META.json`
+
+In any non fastn package, `fastn.json` can be added. In `fastn` packages, `fastn.json` content is created by
+looking at `FASTN.ftd` file.
+
+On reader side: Whenever we update `LIST` file, we also refetch `META.json` file. On writer side whenever
+LIST file is updated, META file is also updated.
+
+Meta contains
+
+-- ds.code:
+lang: json
+
+{
+    "history-is-public": true,
+    "grouped": {
+        "<group-name>": {
+            "files": ["list of", "paths in that", "group],
+            "definition": {
+                "identifier": "value",
+            }
+        },
+    },
+    "sitemap": [
+        { "file-path": <group-name> }
+    ]
+}
+
+-- ds.markdown:
+
+Either `grouped` or `sitemap` key would be present.
 
 
 -- ds.h1: HostN Static Reader: HSR
@@ -112,6 +144,25 @@ In no ts is present as subdomain, if we use <current-time> as default value, we 
 
 Note: In future META file will decide if historical reads are allowed or not. For now it is always allowed.
 
+-- ds.h2: HSR and private files
+
+HSR also supports mixed or fully private packages.
+
+For a file if it is group called "public" then we do the normal logic.
+
+If the file is private, we get the name of the group from the grouped key in meta.json.
+
+For hsr to allow read access to a private file, the request must have a cookie called `<group-name>`
+with value which is encrypted-id("<group-name>"). HSR can do pure computation verification that
+cookie is valid and shows the page.
+
+If cookie is not present or not valid, we show a 404.html page, which contains a login link.
+Login link will take user to `a3` service, not implemented by `hsr`, eg `auth.<package-name>` eg, 
+`auth.amitu.com` or `auth.amitu.fastn-site.com`. 
+
+The job of `a3` service is to do the authentication as per group definition, and set the cookie, and
+redirect the user back to the original page.
+
 -- ds.h2: HSR Cache
 
 In the updated design of `tejar`, `tejar::TejarRecord` contains the following:
@@ -192,8 +243,8 @@ Source code of `fastn-cw` is in [FifthTry/fastn-cw](https://github.com/FifthTry/
 
 -- ds.h2: /create/ API
 
-/create/?package=<package-name>
-Body: <content of LIST.tejar-list file>
+/create/?package=<package-name>&list-file-size=<>
+Body: <content of LIST.tejar-list file>+<meta.JSON content>
 
 Returns:
 
