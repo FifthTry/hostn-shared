@@ -252,10 +252,20 @@ Writer endpoint: api.hostn-apps.com.
 
 Source code of `fastn-cw` is in [FifthTry/fastn-cw](https://github.com/FifthTry/fastn-cw) repo.
 
--- ds.h2: /create/ API
+-- ds.h2: `/create/` API
 
-/create/?package=<package-name>&list-file-size=<>
-Body: <content of LIST.tejar-list file>+<meta.JSON content>
+URL: POST `/api/create/`
+
+Query: `package-name=<string>`, `list-size=<usize>`, `meta-size=<usize>`
+
+Body: `<content of LIST.tejar-list file>`+`<meta.JSON content>`
+
+-- ds.h3: API Functional Steps
+
+- Checks, if similar package name already exists, return BAD Request
+- Creates an entry into `PartialList` Table
+- Check all hashes in the `Checksum` which are present in requests `LIST.tejar-list`
+ file and returns the missing hashes with the package secret key.
 
 Returns:
 
