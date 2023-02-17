@@ -13,10 +13,9 @@ download-base-url: https://raw.githubusercontent.com/fifthtry/hostn/main
 -- fastn.app:
 name: Hostn-App
 package: fifthtry.github.io/hostn-app
-mount-point: /
+mount-point: /app/
 
 
-/-- fastn.sitemap:
+-- fastn.sitemap:
 
-# Section: /
-document: /-/fifthtry.github.io/fpm-controller-ui/index.ftd
+# Docs: /docs/static/
