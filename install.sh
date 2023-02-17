@@ -55,10 +55,10 @@ setup() {
     done
 
     if [[ $PRE_RELEASE ]]; then
-        URL="https://api.github.com/repos/ftd-lang/fastn/releases"
+        URL="https://api.github.com/repos/fastn-lang/fastn/releases"
         echo "Downloading the latest pre-release binaries"
     else
-        URL="https://api.github.com/repos/ftd-lang/fastn/releases/latest"
+        URL="https://api.github.com/repos/fastn-lang/fastn/releases/latest"
         echo "Downloading the latest production ready binaries"
     fi
 
