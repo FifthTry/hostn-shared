@@ -277,9 +277,11 @@ class PartialList(models.Model):
     list_content = models.TextField()
     # created_at # will never be updated, will get deleted on successful update
 
--- ds.markdown: 
+
+-- ds.markdown:
 
 `fastn-cw` generates a new key and stores it in the `PartialList` table.
+
 
 -- ds.code: ContentHash table
 lang: py
@@ -291,12 +293,13 @@ class Checksum(models.Model):
     start = models.IntegerField()
     size = models.IntegerField()
 
--- ds.markdown: 
 
-/create/ API then looks at each checksum in the Checksum table, and finds the checksum in the list
+-- ds.markdown:
+
+`/create/` API then looks at each checksum in the Checksum table, and finds the checksum in the list
 file that is not present in the Checksum table, and returns this list to the `fastn` cli.
+Fastn-cli then makes another HTTP request to `upload-new-package` api and sends the
 
-Fastn-cli then makes another HTTP request to `upload-new-package` api and sends the 
 
 -- ds.h2: /upload-new-package/ API
 
@@ -417,3 +420,4 @@ debug mode `HOSTN_STATIC_STORE=/tmp/hostn-static` environment variable will be u
 `HOSTN_STATIC_STORE` folder will be created it if does not exist.
 
 
+-- end: ds.page
