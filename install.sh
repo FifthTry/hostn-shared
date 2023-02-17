@@ -9,15 +9,16 @@
 # a subshell (like in `$(...)` or `(...)`, so this hack redefines the
 # function at the top level to always return false when stdout is not
 # a tty.
-if [ -t 1 ]; then
-  is_tty() {
-    true
-  }
-else
-  is_tty() {
-    false
-  }
-fi
+
+#if [ -t 1 ]; then
+#  is_tty() {
+#    true
+#  }
+#else
+#  is_tty() {
+#    false
+#  }
+#fi
 
 
 command_exists() {
@@ -98,7 +99,7 @@ setup() {
 }
 
 main() {
-    setup_colors
+#    setup_colors
 
     if ! command_exists curl; then
         echo "${FMT_RED}curl command not found. Please install the curl utility and execute the script once again${FMT_RESET}"
