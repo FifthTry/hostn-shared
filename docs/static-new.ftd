@@ -1,0 +1,33 @@
+-- ds.page: Fastn Packages Static Deployment
+
+-- ds.h1: `fastn serve`
+
+If a user have `fastn` and only want to work on locally they do not require to
+login to fastn cloud. So `fastn serve` and `fastn build` will not be impacted.
+
+-- ds.h1: `fastn login`
+
+Whenever user do the `fastn login` in cli, It will open a browser window with
+the login page, where user has to login with there `email/pass/otp`. After that
+user can create package with the `<subdomain>.fastn-site.com` and that package
+will be automatically deployed for the user on the fastn cloud.
+
+-- ds.h1: `fastn publish static`
+
+If user is running `fastn publish static` command for the first time in their
+package after `fastn login`, so content of this package has to mapped with your
+domain, so it will open the browser window to ask whether you want to mapped it
+to existing domain or create a new package and mapped it with that domain. After
+mapping of the current package content to `fastn cloud` it will also store
+configuration to user package `.fastn/config.json` locally, so next time whenever
+user uses the `fastn publish static`, it will not take user to browser flow.
+
+-- ds.h1: `fastn list`
+
+It will list all the package for the logged in user.
+
+-- ds.h1: `fastn status <domain name of the package  of package id>`
+
+This will show the status of the deployed package.
+
+-- end: ds.page
