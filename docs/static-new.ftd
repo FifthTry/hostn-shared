@@ -30,4 +30,30 @@ It will list all the package for the logged in user.
 
 This will show the status of the deployed package.
 
+-- ds.h1: Commands Rough Page
+
+- fastn cloud
+  - fastn as an dependency
+
+fastn
+GET /login/
+    login.ftd -> login.html
+GET /static/src/image/ ->
+GET -/static/src/image/ ->
+
+- login.ftd
+ - email and otp verify
+- packages.ftd
+ - list of deployed package
+- create-package.ftd
+ - subdomain name and hit the api `<subdomain>.fastn-site.com`
+
+- fastn login abrar.nitk@gmail.com
+- store session id to my local
+- $HOME/.fastn/config.json `{"token": ""}` `jwt token`
+
+- fastn publish create subdomain <and set the cw-id in the current package>
+- fastn publish static
+- fastn list
+
 -- end: ds.page
