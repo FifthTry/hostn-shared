@@ -103,4 +103,15 @@ class User(models.Model):
     created_at = models.DateTimeField(auto_now=True)
 
 
+-- ds.h1: `hsr` to S3
+
+-- ds.h2: `domain` lookup
+
+-- ds.h2: `updated-packages.txt`
+
+-- ds.h2: Package List
+
+-- ds.h2: File Content
+
+
 -- end: ds.page
