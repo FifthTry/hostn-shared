@@ -1,0 +1,46 @@
+# ALL HSR Structs
+
+
+type Cache<T, V> = OnceCell<RwLock<LruCache<T, V>>>;
+type Shasum = String;
+type FullDomain = String;
+
+
+// how frequently to check updated `$BUCKET/updated-packages.txt`
+const RECHECK_UPDATED_EVERY: u64 = 60; // time in seconds
+
+static BUCKET_NAME: OnceCell<String> = once_cell::sync::Lazy::new(|| {
+    std::env::var("BUCKET_NAME").unwrap()
+});
+
+
+static DATA_CACHE: Cache<Shasum, Vec<u8>>;
+static DOMAIN_CACHE: Cache<FullDomain, CWID>;
+static LIST_CACHE: Cache<CWID, tejar::read::Reader>;
+
+struct CachedReader {
+    size: usize,
+    stale: bool,
+    reader: tejar::read::Reader,
+}
+
+
+
+
+static UPDATED_PACKAGES_SIZE: OnceCell<Mutex<usize>>;
+
+
+
+- Operation
+
+# Serve
+
+
+# Periodic Background Operation
+
+We are adding `timestamp` to help `hsr`, `hsr` will look into this file in every
+minute and will do the `delta-fetch` and check if any new entry get added
+into this file for a package, so mark the LIST file cache of that package
+`OUTDATED`, So on coming new request to `hsr` will serve the updated content of
+that package.
+

@@ -1,0 +1,26 @@
+-- ds.h1: package
+
+Each fastn package that is uploaded is called a package.
+
+-- ds.h1: sub-domain
+
+We let people register sub-domains like `amitu.fasnt-site.com` etc. In such case
+the `sub-domain` is `amitu`.
+
+-- ds.h1: domain
+
+We also allow people to use their own domain, eg amitu.com.
+
+-- ds.h1: full-domain
+
+Full domain is either domain, or in case of sub-domains, the full domain for
+amitu is amitu.fasnt-site.com
+
+-- ds.h1: cw-id
+
+Each package has a unique id, it is called `cw-id`. It is the ekey of primary
+key `id` of the package table.
+
+-- ds.h1: ts
+
+Ts is timestamp in nanoseconds, calculated by fastn-cw machine.

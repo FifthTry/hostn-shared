@@ -3,115 +3,86 @@
 -- ds.h1: S3 Bucket `fastn-user-packages`
 
 In S3, we have a bucket `fastn-user-packages`, where we are keeping all the
-packages in this bucket. So, In the docs we are going to use this name as `$BUCKET`.
+packages. In the docs we are going to refer to this as `$BUCKET`.
 
 -- ds.h1: `$BUCKET/updated-packages.txt`
 
-On every success upload for a package from `fastn-cw` to S3, we will also add
-one line to this file.
+This file contains the name of the latest `$BUCKET/updated-packages-<ts>.txt`
+file.
 
-We are adding `timestamp` to help `hsr`, `hsr` will look into this file in every
-minute and will do the `delta-fetch` and check if any new entry get added
-into this file for a package, so mark the LIST file cache of that package
-`OUTDATED`, So on coming new request to `hsr` will serve the updated content of
-that package.
+-- ds.h1: `$BUCKET/updated-packages-<ts>.txt`
+
+On every successful upload of a package on `fastn-cw`, we will add one line to
+this file.
 
 -- ds.code: Content Of Each Entry
 lang: txt
 
-<cw-id>|<domain-name>|<timestamp>
+<cw-id>:<timestamp>
+
+-- ds.markdown:
+
+Every hour `fastn-cw` rotates this file by creating a new file matching
+`$BUCKET/updated-packages-<ts>.txt` pattern. `fastn-cw` writes the name of new
+file in the current `updated-packages-<ts>` file: `file-ended: <next-file>.txt`,
+and in the `$BUCKET/updated-packages.txt` file.
 
 
--- ds.h1: Each Package Content In `$Bucket`
+-- ds.h1: `$BUCKET/<domain-name>.txt`
 
-- `$BUCKET/<cw-id>/LIST.tejar-list`
-- TODO: `$BUCKET/<cw-id>/META.json`
-- `$BUCKET/<cw-id>/DATA-<timestamp>.tejar-data`
-- `$Bucket/<cw-id>/domain.txt`
+For each full-domain, eg domain=amitu.fastn-site.com or domain=amitu.com, we
+will have `$BUCKET/amitu.fastn-site.com.txt` or `$BUCKET/amitu.com.txt`.
+
+The content of this file would be the `cw-id` for that package.
+
+
+
+-- ds.h1: `$BUCKET/<cw-id>/LIST.tejar-list`
 
 In LIST.tejar-list we have all the files with its information like `size`,
 `content-type`, `file-name`, `data-file-name` and `checksum` of the file content.
 Whenever new upload comes to this `fastn-cw` for package, entries will appended
 to this file.
 
-`DATA-<timestamp>.tejar-data` file contains binary data on each success upload,
-and path will be added to `LIST.tejar-list` file as `data-file-name`.
-
-
--- ds.code: LIST File Record
-lang: rs
-
-pub struct ListRecord {
-    pub data_file_name: String,
-    pub file_name: String,
-    pub content_type: String,
-    pub compression: String,
-    pub start: u32,
-    pub size: u32,
-    pub timestamp: u64,
-    pub checksum: String,
-}
-
-
--- ds.h1: Upload `fastn-cw` to S3
-
-For each upload from `fastn-cw` to S3, we are uploading `$BUCKET/<cw-id>/LIST.tejar-list`,
-`$BUCKET/<cw-id>/DATA-<ts>.tejar-data`. Here list file is append only file, if
-list file already present corresponding to `cw-id`, `fastn-cw` will append the
-content in this file. On each upload data file in constructed by the `fastn-cw`
-server and uploaded to S3.
-
-In `fastn-cw` we are also keeping the a `Checksum` model, which is used like as
-cache, which all content is uploaded to S3, it keeps mapping between file checksum
-and already uploaded S3 `data-file`. If the content of a file is already
-uploaded to S3, so used already uploaded data file for the same checksum but
-different setting for the file like `content-type`. This way we are saving S3
-storage size.
-
--- ds.code: Checksum Model
-lang: py
-
-class Checksum(models.Model):
-    hash = models.CharField(
-        max_length=64, primary_key=True
-    )  # we use base64 encoding for Hash
-    data_file_path = models.TextField(max_length=2000)  # $BUCKET/<cw-id>/DATA-<ts>.tejar-data
-    start = models.IntegerField()
-    size = models.IntegerField()
-    created_at = models.DateTimeField(auto_now_add=True)
-
--- ds.h2: `fastn-cw` `cw-id`
-
-For each upload package, we have unique entry in `Package` model. `cw-id` is
-`encrypted(package.id)` which is alias to `Cloud Writer ID`.
-
 -- ds.code:
-lang: py
+lang: txt
 
-class Package(models.Model):
-    # TODO: ekey of package.id
-    cw_id = models.TextField(max_length=255, db_index=True)
-    domain = models.CharField(max_length=2000, db_index=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+$BUCKET/<cw-id>/DATA-<timestamp>.tejar-data|index.html|0|980427|text/html|none|1677654431|a0bbd23afd533396e5499a94f1b4c85fb4078e671f1f8f142dfdec8eb5b2e2e6
 
-class User(models.Model):
-    email = models.CharField(max_length=254)
-    active = models.BooleanField(default=True)
-    updated_at = models.DateTimeField(auto_now_add=True)
-    created_at = models.DateTimeField(auto_now=True)
+-- ds.markdown:
+
+The fields are:
+
+1. the name of tejar-data file where the content if the file is stored
+2. the name of the file
+3. the start location for the file in the tejar-data file
+4. compressed size of the file (start till this size must be read from tejar-data)
+5. size of the file
+6. content type of the file
+7. timestamp in nanoseconds.
+8. `shasum -a 256` of the file
 
 
--- ds.h1: `hsr` to S3
+Note these fields matches with tejar::TejarRecord struct.
 
--- ds.h2: `domain` lookup
+Note: this is an append only file, we never truncate it.
 
--- ds.h2: `updated-packages.txt`
 
--- ds.h2: Package List
+Note on compression: we always compress the file to brotli before storing.
 
--- ds.h2: File Content
+If the browser does not support brotli but supports gzip we have decided to
+incur the CPU hit for now.
+
+
+-- ds.h1: `$BUCKET/<cw-id>/DATA-<timestamp>.tejar-data`
+
+`DATA-<timestamp>.tejar-data` file contains binary data on each success upload.
+
+
+
+
+
+
 
 
 -- end: ds.page

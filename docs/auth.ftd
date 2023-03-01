@@ -1,0 +1,9 @@
+-- ds.code: Checksum Model
+lang: py
+
+class User(models.Model):
+    email = models.CharField(max_length=254)
+    # No password field because we only do OTP login for now
+    updated_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now=True)
+

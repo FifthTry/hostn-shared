@@ -1,0 +1,76 @@
+
+-- ds.code: Model
+lang: py
+
+
+class Package(models.Model):
+    domain = models.ForeignKey(
+        "Domain",
+        on_delete=models.PROTECT,
+        help_text="The primary domain for this package."
+    )
+    owner = models.ForeignKey(auth.User, on_delete=models.PROTECT)
+    created_on = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class Domain(models.Model):
+    domain = models.TextField(max_length=1000)
+    package = models.ForeignKey(Package, on_delete=models.PROTECT)
+
+
+class Document(models.Model):
+    package = models.ForeignKey(Package, on_delete=models.PROTECT)
+    shasum = models.CharField(
+        max_length=64, primary_key=True
+    )  # mustbe equal to whatever `shasum -a 256` returns
+    # data_file_path is like this: $BUCKET/<cw-id>/DATA-<ts>.tejar-data
+    data_file_path = models.TextField(max_length=2000)
+    start = models.IntegerField()
+    size = models.IntegerField()
+    compressed_size = models.IntegerField()
+    # who uploaded this file
+    user = models.ForeignKey(auth.User, on_delete=models.PROTECT)
+
+    created_on = models.DateTimeField(auto_now_add=True)
+
+
+
+
+
+
+
+
+-- ds.h1: Upload `fastn-cw` to S3
+
+For each upload from `fastn-cw` to S3, we are uploading `$BUCKET/<cw-id>/LIST.tejar-list`,
+`$BUCKET/<cw-id>/DATA-<ts>.tejar-data`. Here list file is append only file, if
+list file already present corresponding to `cw-id`, `fastn-cw` will append the
+content in this file. On each upload data file in constructed by the `fastn-cw`
+server and uploaded to S3.
+
+In `fastn-cw` we are also keeping the a `Checksum` model, which is used like as
+cache, which all content is uploaded to S3, it keeps mapping between file checksum
+and already uploaded S3 `data-file`. If the content of a file is already
+uploaded to S3, so used already uploaded data file for the same checksum but
+different setting for the file like `content-type`. This way we are saving S3
+storage size.
+
+
+
+-- ds.h2: `fastn-cw` `cw-id`
+
+For each upload package, we have unique entry in `Package` model. `cw-id` is
+`encrypted(package.id)` which is alias to `Cloud Writer ID`.
+
+
+
+-- ds.h1: `hsr` to S3
+
+-- ds.h2: `domain` lookup
+
+-- ds.h2: `updated-packages.txt`
+
+-- ds.h2: Package List
+
+-- ds.h2: File Content

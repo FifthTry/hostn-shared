@@ -1,0 +1,10 @@
+We are currently using lru cache, but it's bound variant, https://docs.rs/lru/latest/lru/struct.LruCache.html#method.new,
+is bound by the number of entries in the cache, and not by the total RAM
+utilization.
+
+If we use non memory bound lru cache, the RAM requirement of the cache will
+fluctuate with time and we can run out of memory even if the number of items
+was small if the average entry size goes up.
+
+https://memo.barrucadu.co.uk/dns-cache.html has an implementation for memory
+bound cache. We can do something similar ourselves.
