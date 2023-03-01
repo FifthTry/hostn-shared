@@ -3,7 +3,7 @@
 -- ds.h1: S3 Bucket `fastn-user-packages`
 
 In S3, we have a bucket `fastn-user-packages`, where we are keeping all the
-packages in this bucket. So In the docs we are going to use this name as `$BUCKET`.
+packages in this bucket. So, In the docs we are going to use this name as `$BUCKET`.
 
 -- ds.h1: `$BUCKET/updated-packages.txt`
 
@@ -25,7 +25,7 @@ lang: txt
 -- ds.h1: Each Package Content In `$Bucket`
 
 - `$BUCKET/<cw-id>/LIST.tejar-list`
-- `$BUCKET/<cw-id>/META.json`
+- TODO: `$BUCKET/<cw-id>/META.json`
 - `$BUCKET/<cw-id>/DATA-<timestamp>.tejar-data`
 - `$Bucket/<cw-id>/domain.txt`
 
@@ -51,6 +51,56 @@ pub struct ListRecord {
     pub timestamp: u64,
     pub checksum: String,
 }
+
+
+-- ds.h1: Upload `fastn-cw` to S3
+
+For each upload from `fastn-cw` to S3, we are uploading `$BUCKET/<cw-id>/LIST.tejar-list`,
+`$BUCKET/<cw-id>/DATA-<ts>.tejar-data`. Here list file is append only file, if
+list file already present corresponding to `cw-id`, `fastn-cw` will append the
+content in this file. On each upload data file in constructed by the `fastn-cw`
+server and uploaded to S3.
+
+In `fastn-cw` we are also keeping the a `Checksum` model, which is used like as
+cache, which all content is uploaded to S3, it keeps mapping between file checksum
+and already uploaded S3 `data-file`. If the content of a file is already
+uploaded to S3, so used already uploaded data file for the same checksum but
+different setting for the file like `content-type`. This way we are saving S3
+storage size.
+
+-- ds.code: Checksum Model
+lang: py
+
+class Checksum(models.Model):
+    hash = models.CharField(
+        max_length=64, primary_key=True
+    )  # we use base64 encoding for Hash
+    data_file_path = models.TextField(max_length=2000)  # $BUCKET/package-name
+    start = models.IntegerField()
+    size = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+-- ds.h2: `cw-id`
+
+For each upload package, we have unique entry in `Package` model. `cw-id` is
+`encrypted(package.id)` which is alias to `Cloud Writer ID`.
+
+-- ds.code:
+lang: py
+
+class Package(models.Model):
+    # TODO: ekey of package.id
+    cw_id = models.TextField(max_length=255, db_index=True)
+    domain = models.CharField(max_length=2000, db_index=True)  # In mostly cases it is going to be <subdomain>.fastn-site.co
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+class User(models.Model):
+    email = models.CharField(max_length=254)
+    active = models.BooleanField(default=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now=True)
 
 
 -- end: ds.page
