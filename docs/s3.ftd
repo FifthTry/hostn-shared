@@ -1,0 +1,56 @@
+-- ds.page: `publish-static` S3 Interface
+
+-- ds.h1: S3 Bucket `fastn-user-packages`
+
+In S3, we have a bucket `fastn-user-packages`, where we are keeping all the
+packages in this bucket. So In the docs we are going to use this name as `$BUCKET`.
+
+-- ds.h1: `$BUCKET/updated-packages.txt`
+
+On every success upload for a package from `fastn-cw` to S3, we will also add
+one line to this file.
+
+We are adding `timestamp` to help `hsr`, `hsr` will look into this file in every
+minute and will do the `delta-fetch` and check if any new entry get added
+into this file for a package, so mark the LIST file cache of that package
+`OUTDATED`, So on coming new request to `hsr` will serve the updated content of
+that package.
+
+-- ds.code: Content Of Each Entry
+lang: txt
+
+<cw-id>|<domain-name>|<timestamp>
+
+
+-- ds.h1: Each Package Content In `$Bucket`
+
+- `$BUCKET/<cw-id>/LIST.tejar-list`
+- `$BUCKET/<cw-id>/META.json`
+- `$BUCKET/<cw-id>/DATA-<timestamp>.tejar-data`
+- `$Bucket/<cw-id>/domain.txt`
+
+In LIST.tejar-list we have all the files with its information like `size`,
+`content-type`, `file-name`, `data-file-name` and `checksum` of the file content.
+Whenever new upload comes to this `fastn-cw` for package, entries will appended
+to this file.
+
+`DATA-<timestamp>.tejar-data` file contains binary data on each success upload,
+and path will be added to `LIST.tejar-list` file as `data-file-name`.
+
+
+-- ds.code: LIST File Record
+lang: rs
+
+pub struct ListRecord {
+    pub data_file_name: String,
+    pub file_name: String,
+    pub content_type: String,
+    pub compression: String,
+    pub start: u32,
+    pub size: u32,
+    pub timestamp: u64,
+    pub checksum: String,
+}
+
+
+-- end: ds.page
