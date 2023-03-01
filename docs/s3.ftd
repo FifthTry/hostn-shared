@@ -75,12 +75,12 @@ class Checksum(models.Model):
     hash = models.CharField(
         max_length=64, primary_key=True
     )  # we use base64 encoding for Hash
-    data_file_path = models.TextField(max_length=2000)  # $BUCKET/package-name
+    data_file_path = models.TextField(max_length=2000)  # $BUCKET/<cw-id>/DATA-<ts>.tejar-data
     start = models.IntegerField()
     size = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
 
--- ds.h2: `cw-id`
+-- ds.h2: `fastn-cw` `cw-id`
 
 For each upload package, we have unique entry in `Package` model. `cw-id` is
 `encrypted(package.id)` which is alias to `Cloud Writer ID`.
@@ -91,7 +91,7 @@ lang: py
 class Package(models.Model):
     # TODO: ekey of package.id
     cw_id = models.TextField(max_length=255, db_index=True)
-    domain = models.CharField(max_length=2000, db_index=True)  # In mostly cases it is going to be <subdomain>.fastn-site.co
+    domain = models.CharField(max_length=2000, db_index=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
