@@ -7,13 +7,18 @@ packages. In the docs we are going to refer to this as `$BUCKET`.
 
 -- ds.h1: `$BUCKET/updated-packages.txt`
 
-This file contains the name of the latest `$BUCKET/updated-packages-<ts>.txt`
-file.
+On every successful upload on cw side we update the package.updated_on.
 
--- ds.h1: `$BUCKET/updated-packages-<ts>.txt`
+We also have a table with single row: last_updated_ts.
 
-On every successful upload of a package on `fastn-cw`, we will add one line to
-this file.
+Every min we have a cron job, looks for `select package.id, package.updated_on
+from packages where package.updated_on > last_updated_ts`. We also look for
+`select * from domain_alias where updated_on > last_updated_ts`. We store the
+result of these two in a text file and upload it to s3 as `$BUCKET/updated-packages.txt`.
+
+After successful update we update the value of last_updated_ts to the highest
+timestamp that we find in the two queries.
+
 
 -- ds.code: Content Of Each Entry
 lang: txt
@@ -33,16 +38,20 @@ and in the `$BUCKET/updated-packages.txt` file.
 For each full-domain, eg domain=amitu.fastn-site.com or domain=amitu.com, we
 will have `$BUCKET/amitu.fastn-site.com.txt` or `$BUCKET/amitu.com.txt`.
 
-The content of this file would be the `cw-id` for that package.
+The content of this file would be the `cw-id` for that package and the
+<timestamp>.
+
+```
+<cw-id>|<timestamp>
+```
 
 
+-- ds.h1: `$BUCKET/<cw-id>/LIST-<timestamp>.tejar-list`
 
--- ds.h1: `$BUCKET/<cw-id>/LIST.tejar-list`
-
-In LIST.tejar-list we have all the files with its information like `size`,
+In LIST-<timestamp>.tejar-list we have all the files with its information like `size`,
 `content-type`, `file-name`, `data-file-name` and `checksum` of the file content.
-Whenever new upload comes to this `fastn-cw` for package, entries will appended
-to this file.
+Whenever new upload comes to this `fastn-cw` for package one new file is created
+with the entire content of the package.
 
 -- ds.code:
 lang: txt

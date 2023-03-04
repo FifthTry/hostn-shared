@@ -19,6 +19,19 @@ terms of use, blog etc are on stored in `hostn` repo.
 
 This is the django code behind hostn.
 
+Lets say we are getting requests for 10000 unique packages every day.
+
+Lets say 1000 of them, which is 10% are getting updated every min.
+
+
+If we redownload every domain every min, we wil lmake 10000 req per min to S3.
+
+If we update updated-domains.txt we will downloa done file every min. Size of
+the file would not be big as it will only contain 1000 text lines containing
+`integer(cw-id):integer(timestamp)`
+
+domain:cw-id:timestamp
+
 -- ds.h1: hostn-app
 
 This is the fastn re-usable app implementing the main features

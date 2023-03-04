@@ -80,14 +80,115 @@ Minio is a development requirement.
 
 - Operation
 
-# Serve
+# Serving a request
+
+## domain from request
+
+First we will get the domain from the request and stored in `domain` variable.
+
+## cw-id for the domain
+
+We will look for entry for domain `DOMAIN_CACHE`. If we find it we use it.
+If the entry is None it means we searched for it earlier and we did not find
+it so we will return a 404.
+
+If there is no entry for `domain` in `DOMAIN_CACHE` we will read the
+`$BUCKET/<domain-name>.txt` file, which contains: `<cw-id>|<timestamp>`.
+
+We will store the `<cw-id>|<timestamp>` in `DOMAIN_CACHE`.
+
+We have `cw_id` and `timestamp` variables now.
+
+
+## Look for `cw-id` in `LIST_CACHE`
+
+If we find an entry for `cw-id` in `LIST_CACHE` we store it as `cached_list`.
+
+If `cached_list.stale` is true or if `cached_list.ts < timestamp`: we go to
+the "Download the `$BUCKET/<cw-id>/LIST-<timestamp>.tejar-list` file" step.
+
+If we find it we go to the `Get the path from request` step.
+
+The entry we find from the LIST_CACHE is called `tejar_list`.
+
+## Download the `$BUCKET/<cw-id>/LIST-<timestamp>.tejar-list` file
+
+We have `cw-id` and `<timestamp>`, we fetch this file and store its content
+in `LIST_CACHE` and in the `tejar_list` variable.
+
+## Get the path from request
+
+We store the path in `path` variable.
+
+## Look for entry in `.tejar-list` for given `path`
+
+In the `tejar_list` we contain one line for every path in the package. We
+iterate through them and find the entry for the path we get from the request.
+
+If we do not find the record we return a 404.
+
+If we find a record lets call it `record`.
+
+If request.compressed_size > THRESHOLD go to step: direct stream.
+
+## Look for `record.shasum` in `DATA_CACHE`
+
+If we find `record.shasum` in `DATA_CACHE` we store it as `data`.
+
+If not we download `record.data_file_path` (which looks like this:
+`DATA-<timestamp>.tejar-data`), from `record.start` till `record.length` and
+store in `data`.
+
+If `record.length < 1M` we add `DATA_CACHE[record.shasum] = data`.
+
+## Create Response
+
+We create a response with content-type as `record.content-type` and the
+`content-length` as `record.size`.
+
+## The Body Of the Response
+
+
+If record.compression is none we use the data as body (without compressing).
+
+If record.compression is brotly and:
+
+- request supports brotli: use data as the body of response. Set the
+  content-encoding header to brotli.
+- request supports gzip: unbrotli the data and gzip it as body, set the
+  content-encoding header to gzip.
+- request supports neither: unbrotli the data as body and content-encoding
+  header as plain.
+
+
+## Direct Stream
+
+Return 403.
+
+
+
 
 
 # Periodic Background Operation
 
-We are adding `timestamp` to help `hsr`, `hsr` will look into this file in every
-minute and will do the `delta-fetch` and check if any new entry get added
-into this file for a package, so mark the LIST file cache of that package
-`OUTDATED`, So on coming new request to `hsr` will serve the updated content of
-that package.
+Every min we do the periodic update.
+
+We fetch the `$BUCKET/updated-packages.txt` file.
+
+This file contains records like:
+
+cw-id|ts
+domain|cw-id|ts
+
+The records are called package_updated and domain_updated.
+
+## update LIST_CACHE
+
+For every package_updated entry in the file we see if the `cw-id` is present
+in the LIST_CACHE. If so we set it's `.stale = false`.
+
+## update DOMAIN_CACHE
+
+For every domain_updated entry in the file we see if the `domain` is present
+in the DOMAIN_CACHE, if so we update its value.
 
