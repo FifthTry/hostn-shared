@@ -32,6 +32,8 @@ All libraries will not do any direct IO, will implement "interpreter loop".
 
 -- ds.h2: `tejar`
 
+-- ds.h2: `ftd-conf`
+
 -- end: ds.page
 
 
