@@ -1,38 +1,46 @@
--- ds.page: HostN Architecture
+-- ds.page:
 
-We have three repos.
+-- ds.h1: Binary Crates
 
--- ds.h1: hostn
+-- ds.h2: `fastn-cli` (binary name: `fastn`)
 
-This is the main repo. This is a `fastn` package.
+To run on local laptops.
 
-All discussions related to hostn project, all issue tracking
-etc should be done against this repo.
+- `fastn-serve`
 
-This fastn package uses `hostn-app` for main feature. It uses
-the mount point as `/` for now.
+-- ds.h2: `fastn-server`
 
-Non app features like landing page, documentation, pricing page
-terms of use, blog etc are on stored in `hostn` repo.
+To run on Heroku etc.
 
--- ds.h1: hostn-service
+-- ds.h2: `fastn-cloud`
 
-This is the django code behind hostn.
+-- ds.h2: `hsr`
 
-Lets say we are getting requests for 10000 unique packages every day.
-
-Lets say 1000 of them, which is 10% are getting updated every min.
+-- ds.h2: `fastn-workspace`
 
 
-If we redownload every domain every min, we wil lmake 10000 req per min to S3.
 
-If we update updated-domains.txt we will downloa done file every min. Size of
-the file would not be big as it will only contain 1000 text lines containing
-`integer(cw-id):integer(timestamp)`
+-- ds.h1: Library Crates
 
-domain:cw-id:timestamp
+All libraries will not do any direct IO, will implement "interpreter loop".
 
--- ds.h1: hostn-app
+-- ds.h2: `fastn-serve`
 
-This is the fastn re-usable app implementing the main features
-of hostn service.
+-- ds.h2: `fastn-edit`
+
+-- ds.h2: `fastn-sync`
+
+-- ds.h2: `tejar`
+
+-- end: ds.page
+
+
+ 
+
+
+
+
+
+
+
+
